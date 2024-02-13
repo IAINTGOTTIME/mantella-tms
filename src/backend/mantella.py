@@ -9,4 +9,4 @@ app.include_router(v1.router)
 
 @app.get("/")
 def index():
-    return {"msg": "Hello World!"}
+    return {"msg": "Mantella TMS"}

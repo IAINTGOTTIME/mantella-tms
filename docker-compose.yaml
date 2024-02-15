@@ -1,0 +1,8 @@
+version: '33'
+services:
+  api:
+    ports:
+      - 8080:8080
+    build: 
+      context: ./src/backend
+      dockerfile: Dockerfile

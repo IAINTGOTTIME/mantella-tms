@@ -8,6 +8,6 @@ RUN PIPENV_VENV_IN_PROJECT=1 pipenv install --deploy
 
 ENV PATH="/.venv/bin:$PATH"
 
-CMD ["uvicorn", "mantella:app", "--host", "0.0.0.0", "--port", "8080"]
+CMD ["uvicorn", "mantella:app", "--host", "0.0.0.0", "--port", "80", "--proxy-headers"]
 
 EXPOSE 8080

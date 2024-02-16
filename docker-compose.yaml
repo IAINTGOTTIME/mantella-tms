@@ -1,0 +1,21 @@
+version: '3'
+services:
+  web-frontend:
+    # ports:
+    #   - 3000:3000
+    build: 
+      context: ./src/frontend
+      dockerfile: Dockerfile
+  api:
+    # ports:
+    #   - 8080:8080
+    build: 
+      context: ./src/backend
+      dockerfile: Dockerfile
+  proxy:
+    ports:
+      - 8080:80
+      - 8443:443
+    build: 
+      context: ./proxy
+      dockerfile: Dockerfile

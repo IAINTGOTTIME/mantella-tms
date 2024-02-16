@@ -13,6 +13,9 @@ services:
       context: ./src/backend
       dockerfile: Dockerfile
   proxy:
+    depends_on:
+      - api
+      - web-frontend
     ports:
       - 8080:80
       - 8443:443

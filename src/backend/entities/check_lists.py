@@ -2,11 +2,11 @@ from pydantic import BaseModel
 from typing import List
 
 
-class CheckListsItems(BaseModel):
+class CheckListsItem(BaseModel):
     id: int
     description: str
 
 
-class CheckLists(BaseModel):
+class CheckList(BaseModel):
     id: str
-    items: List[CheckListsItems]
+    items: List[CheckListsItem]

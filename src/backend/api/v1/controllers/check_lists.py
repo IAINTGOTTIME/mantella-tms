@@ -17,6 +17,7 @@ MOCK_CHECK_LISTS: List[CheckList] = [
                CheckListsItem(id=3, description="dasdasdasdASAADADADS"),
                CheckListsItem(id=4, description="dasdasdadfg"),
                CheckListsItem(id=5, description="dasdasd321"),
+               CheckListsItem(id=6, description="dasdasd321"),
                ]
     ),
     CheckList(

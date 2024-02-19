@@ -5,14 +5,14 @@ from datetime import datetime
 
 
 class TestCaseStep(BaseModel):
-    id: int
+    id: int | None
     order: int
     description: str
     expected_result: str
 
 
 class TestCase(BaseModel):
-    id: str
+    id: int | None
     title: str
     steps: List[TestCaseStep]
     priority: int

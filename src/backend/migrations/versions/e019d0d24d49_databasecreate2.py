@@ -1,15 +1,15 @@
-"""Databasecreate
+"""Databasecreate2
 
-Revision ID: 1095b0a67f75
+Revision ID: e019d0d24d49
 Revises: 
-Create Date: 2024-02-19 16:18:31.711435
+Create Date: 2024-02-19 19:05:20.301714
 
 """
 from alembic import op
 import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
-revision = '1095b0a67f75'
+revision = 'e019d0d24d49'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -20,7 +20,8 @@ def upgrade():
     op.create_table('check_list',
                     sa.Column('id', sa.Integer(), nullable=False),
                     sa.Column('title', sa.String(), nullable=False),
-                    sa.Column('created_at', sa.DateTime(), nullable=True),
+                    sa.Column('created_at', sa.DateTime(), server_default=sa.text("TIMEZONE('utc', CURRENT_TIMESTAMP)"),
+                              nullable=False),
                     sa.Column('updated_at', sa.DateTime(), nullable=True),
                     sa.PrimaryKeyConstraint('id')
                     )
@@ -28,7 +29,8 @@ def upgrade():
                     sa.Column('id', sa.Integer(), nullable=False),
                     sa.Column('title', sa.String(), nullable=False),
                     sa.Column('priority', sa.Integer(), nullable=False),
-                    sa.Column('created_at', sa.DateTime(), nullable=True),
+                    sa.Column('created_at', sa.DateTime(), server_default=sa.text("TIMEZONE('utc', CURRENT_TIMESTAMP)"),
+                              nullable=False),
                     sa.Column('updated_at', sa.DateTime(), nullable=True),
                     sa.PrimaryKeyConstraint('id')
                     )
@@ -36,7 +38,8 @@ def upgrade():
                     sa.Column('id', sa.Integer(), nullable=False),
                     sa.Column('check_list_id', sa.Integer(), nullable=False),
                     sa.Column('description', sa.String(), nullable=False),
-                    sa.Column('created_at', sa.DateTime(), nullable=True),
+                    sa.Column('created_at', sa.DateTime(), server_default=sa.text("TIMEZONE('utc', CURRENT_TIMESTAMP)"),
+                              nullable=False),
                     sa.Column('updated_at', sa.DateTime(), nullable=True),
                     sa.ForeignKeyConstraint(['check_list_id'], ['check_list.id'], ),
                     sa.PrimaryKeyConstraint('id')
@@ -47,7 +50,8 @@ def upgrade():
                     sa.Column('order', sa.Integer(), nullable=False),
                     sa.Column('description', sa.String(), nullable=False),
                     sa.Column('expected_result', sa.String(), nullable=True),
-                    sa.Column('created_at', sa.DateTime(), nullable=True),
+                    sa.Column('created_at', sa.DateTime(), server_default=sa.text("TIMEZONE('utc', CURRENT_TIMESTAMP)"),
+                              nullable=False),
                     sa.Column('updated_at', sa.DateTime(), nullable=True),
                     sa.ForeignKeyConstraint(['test_case_id'], ['test_case.id'], ),
                     sa.PrimaryKeyConstraint('id')

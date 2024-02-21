@@ -1,11 +1,11 @@
 from typing import List
 
 from fastapi import APIRouter, HTTPException, Depends
-
 import services
+from db.models.test_case_model import TestCaseOrm
 from services import test_cases_services
 from db.engine import session
-from entities.test_case_entities import TestCase
+from entities.test_case_entities import TestCase, TestCaseStep
 
 test_cases_router = APIRouter(
     tags=["test-cases"],
@@ -37,8 +37,8 @@ def get_one_test_case(id: int, db: session = Depends(get_db)):
 
 
 @test_cases_router.post("/", response_model=TestCase)
-def create_test_case(new_item: TestCase, db: session = Depends(get_db)):
-    new_one = services.test_cases_services.create_test_case(db=db, new_item=new_item)
+def create_test_case(new_case: TestCase, db: session = Depends(get_db)):
+    new_one = services.test_cases_services.create_test_case(db=db, new_case=new_case)
     return new_one
 
 
@@ -52,7 +52,10 @@ def update_test_case(id: int, new_item: TestCase, db: session = Depends(get_db))
 
 
 @test_cases_router.delete("/{id}")
-def delete_test_case(id: str, db: session = Depends(get_db)):
-    services.test_cases_services.delete_test_case(db=db, id=id)
+def delete_test_case(id: int, db: session = Depends(get_db)):
+    delete = services.test_cases_services.delete_test_case(db=db, id=id)
+    if not delete:
+        raise HTTPException(detail=f"test case with id {id} not found",
+                            status_code=404)
     raise HTTPException(detail=f"test case with id {id} is deleted",
                         status_code=204)

@@ -1,9 +1,11 @@
-
-
+from typing import List
 from fastapi import HTTPException
 
+import entities
 from db.engine import session
-from db.models.test_case_model import TestCase, TestCaseStep
+from db.models.test_case_model import TestCaseOrm, TestCaseStepOrm
+from entities.test_case_entities import TestCase, TestCaseStep
+from entities import test_case_entities
 
 
 def get_test_cases(db: session, skip: int = 0, limit: int = 50):
@@ -19,16 +21,26 @@ def get_one_test_case(db: session, id: int):
     return one
 
 
-def create_test_case(db: session, new_item: TestCase):
-    new_one = TestCase(id=new_item.id, title=new_item.title, steps=new_item.steps, priority=new_item.priority)
+def create_test_case(new_case: TestCase, db: session):
+    new_step = TestCaseStepOrm(id=new_case.steps[0].id,
+                               order=new_case.steps[0].order,
+                               description=new_case.steps[0].description,
+                               expected_result=new_case.steps[0].expected_result)
+    db.add(new_step)
+    db.flush()
+    new_one = TestCaseOrm(
+        id=new_case.id,
+        title=new_case.title,
+        steps=new_case.steps,
+        priority=new_case.priority)
     db.add(new_one)
     db.commit()
     db.refresh(new_one)
     return new_one
 
 
-def update_test_case(db: session, id: int, new_item: TestCase) -> TestCase:
-    new_one = db.get(TestCase).filter(TestCase.id == id)
+def update_test_case(db: session, id: int, new_item: TestCase):
+    new_one = db.get(TestCase.id).filter(TestCase.id == id)
     if not new_one:
         raise HTTPException(detail=f"test case with id {id} not found",
                             status_code=404)

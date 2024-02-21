@@ -26,3 +26,5 @@ def pg_utcnow(element, compiler, **kw):
 class Base(DeclarativeBase):
     created_at = Column(DateTime, server_default=utcnow(), nullable=False)
     updated_at = Column(DateTime, onupdate=utcnow())
+
+

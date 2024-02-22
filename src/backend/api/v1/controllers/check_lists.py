@@ -1,10 +1,4 @@
-from typing import List
-
-from fastapi import APIRouter, HTTPException
-
-
-from entities.check_lists_entities import CheckList, CheckListItem
-
+from fastapi import APIRouter
 
 check_lists_router = APIRouter(
     tags=["check-lists"],

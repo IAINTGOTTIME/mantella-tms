@@ -1,11 +1,8 @@
-from typing import List
 from fastapi import HTTPException
 
-import entities
 from db.engine import session
 from db.models.test_case_model import TestCaseOrm, TestCaseStepOrm
-from entities.test_case_entities import TestCase, TestCaseStep
-from entities import test_case_entities
+from entities.test_case_entities import TestCase
 
 
 def get_test_cases(db: session, skip: int = 0, limit: int = 50):

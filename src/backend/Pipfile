@@ -11,6 +11,8 @@ pytest = "*"
 bcrypt = "*"
 fastapi = "*"
 psycopg2-binary = "*"
+pydantic-settings = "*"
+alembic = "*"
 
 [dev-packages]
 

@@ -1,9 +1,8 @@
 from sqlalchemy.ext.compiler import compiles
 from sqlalchemy.types import DateTime
-from sqlalchemy import create_engine, Column
+from sqlalchemy import create_engine, Column, Integer
 from sqlalchemy.orm import sessionmaker, DeclarativeBase
 from sqlalchemy.sql import expression
-
 from db.config import settings
 
 engine = create_engine(
@@ -24,7 +23,6 @@ def pg_utcnow(element, compiler, **kw):
 
 
 class Base(DeclarativeBase):
+    __table_args__ = {'sqlite_autoincrement': True}
     created_at = Column(DateTime, server_default=utcnow(), nullable=False)
     updated_at = Column(DateTime, onupdate=utcnow())
-
-

@@ -22,18 +22,17 @@ def get_one_test_case(db: session, id: int):
 
 
 def create_test_case(new_case: TestCase, db: session):
-    new_step = TestCaseStepOrm(id=new_case.steps[0].id,
-                               order=new_case.steps[0].order,
-                               description=new_case.steps[0].description,
-                               expected_result=new_case.steps[0].expected_result)
-    db.add(new_step)
-    db.flush()
     new_one = TestCaseOrm(
-        id=new_case.id,
         title=new_case.title,
-        steps=new_case.steps,
         priority=new_case.priority)
     db.add(new_one)
+    db.flush()
+    for i in range(len(new_case.steps)):
+        new_step = TestCaseStepOrm(test_case_id=new_case.steps[i].test_case_id,
+                                   order=new_case.steps[i].order,
+                                   description=new_case.steps[i].description,
+                                   expected_result=new_case.steps[i].expected_result)
+        db.add(new_step)
     db.commit()
     db.refresh(new_one)
     return new_one
@@ -50,13 +49,13 @@ def update_test_case(db: session, id: int, new_item: TestCase):
     return new_one
 
 
-def delete_test_case(db: session, id: int):
-    deleted_id = db.get(TestCase).filter(TestCase.id == id)
-    if not deleted_id:
+def delete_test_case(id: int, db: session, ):
+    delete_case = db.query(TestCaseStepOrm).filter(TestCaseStepOrm.test_case_id == id).first()
+    if not delete_case:
         raise HTTPException(detail=f"test case with id {id} not found",
                             status_code=404)
-    db.delete(deleted_id)
+    db.delete(delete_case)
+    db.query(TestCaseOrm).filter(TestCaseOrm.id == id).delete()
     db.commit()
-    db.refresh(deleted_id)
     raise HTTPException(detail=f"test case with id {id} delete",
                         status_code=204)

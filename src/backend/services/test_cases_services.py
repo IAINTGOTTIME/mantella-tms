@@ -1,42 +1,50 @@
 from fastapi import HTTPException
+from sqlalchemy.orm import Session
 
-from db.engine import session
 from db.models.test_case_model import TestCaseOrm, TestCaseStepOrm
-from entities.test_case_entities import TestCase
+from entities.test_case_entities import TestCase, TestCaseRequest
 
 
-def get_test_cases(db: session, skip: int = 0, limit: int = 50):
+def get_test_cases(skip: int = 0, limit: int = 50, db: Session = None):
     test_cases = db.query(TestCase).offset(skip).limit(limit).all()
     return test_cases
 
 
-def get_one_test_case(db: session, id: int):
-    one = db.query(TestCase).filter(TestCase.id == id).first()
+def get_one_test_case(id: int, db: Session):
+    one = db.query(TestCase).filter(TestCaseOrm.id == id).first()
     if not one:
         raise HTTPException(detail=f"test case with id {id} not found",
                             status_code=404)
     return one
 
 
-def create_test_case(new_case: TestCase, db: session):
+def create_test_case(new_case: TestCaseRequest, db: Session):
     new_one = TestCaseOrm(
         title=new_case.title,
-        priority=new_case.priority)
+        priority=new_case.priority
+    )
     db.add(new_one)
     db.flush()
-    for i in range(len(new_case.steps)):
-        new_step = TestCaseStepOrm(test_case_id=new_case.steps[i].test_case_id,
-                                   order=new_case.steps[i].order,
-                                   description=new_case.steps[i].description,
-                                   expected_result=new_case.steps[i].expected_result)
+
+    # Validating order of the steps
+    for i in new_case.steps:
+        # TODO: validate
+        pass
+
+    for step in new_case.steps:
+        new_step = TestCaseStepOrm(test_case_id=new_one.id,
+                                   order=step.order,
+                                   description=step.description,
+                                   expected_result=step.expected_result)
         db.add(new_step)
+
     db.commit()
     db.refresh(new_one)
     return new_one
 
 
-def update_test_case(db: session, id: int, new_item: TestCase):
-    new_one = db.get(TestCase.id).filter(TestCase.id == id)
+def update_test_case(db: Session, id: int, new_item: TestCase):
+    new_one = db.query(TestCaseOrm).filter(TestCaseOrm.id == id)
     if not new_one:
         raise HTTPException(detail=f"test case with id {id} not found",
                             status_code=404)
@@ -46,8 +54,9 @@ def update_test_case(db: session, id: int, new_item: TestCase):
     return new_one
 
 
-def delete_test_case(id: int, db: session, ):
-    delete_case = db.query(TestCaseStepOrm).filter(TestCaseStepOrm.test_case_id == id).first()
+def delete_test_case(id: int, db: Session, ):
+    delete_case = db.query(TestCaseStepOrm).filter(
+        TestCaseStepOrm.test_case_id == id).first()
     if not delete_case:
         raise HTTPException(detail=f"test case with id {id} not found",
                             status_code=404)

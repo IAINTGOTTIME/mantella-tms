@@ -39,7 +39,7 @@ def create_test_case(new_case: TestCaseRequest, db: session = Depends(get_db)):
 
 
 @test_cases_router.put("/{id}", response_model=TestCase)
-def update_test_case(id: int, new_item: TestCase,
+def update_test_case(id: int, new_item: TestCaseRequest,
                      db: session = Depends(get_db)):
     new_one = services.test_cases_service.update_test_case(id=id,
                                                            new_item=new_item,

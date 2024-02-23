@@ -1,18 +1,19 @@
 version: '3'
 services:
   web-frontend:
-    # ports:
-    #   - 3000:3000
+    container_name: web-frontend
     build: 
       context: ./src/frontend
       dockerfile: Dockerfile
   api:
-    # ports:
-    #   - 8080:8080
+    depends_on:
+      - db
+    container_name: api
     build: 
       context: ./src/backend
       dockerfile: Dockerfile
   proxy:
+    container_name: proxy
     depends_on:
       - api
       - web-frontend
@@ -23,6 +24,7 @@ services:
       context: ./proxy
       dockerfile: Dockerfile
   db:
+    container_name: db
     image: postgres:15.1
     environment:
       - POSTGRES_DB=mantella

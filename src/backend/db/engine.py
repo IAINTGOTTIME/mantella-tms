@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
 
-from db.dbsettings import DBSettings
+from db.settings import DBSettings
 
 settings = DBSettings()
 

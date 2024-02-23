@@ -67,11 +67,9 @@ def update_test_case(db: Session, id: int, new_item: TestCaseRequest):
 
 
 def delete_test_case(db: Session, id: int):
-    delete_case = db.query(TestCaseOrm).first()
+    delete_case = db.query(TestCaseOrm).filter(TestCaseOrm.id == id).first()
     if not delete_case:
         raise HTTPException(detail=f"test case with id {id} not found",
                             status_code=404)
     db.delete(delete_case)
     db.commit()
-    raise HTTPException(detail=f"test case with id {id} delete",
-                        status_code=204)

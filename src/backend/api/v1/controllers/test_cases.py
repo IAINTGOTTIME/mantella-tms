@@ -52,11 +52,4 @@ def update_test_case(id: int, new_item: TestCaseRequest,
 
 @test_cases_router.delete("/{id}")
 def delete_test_case(id: int, db: session = Depends(get_db)):
-    delete = services.test_cases_service.delete_test_case(id=id, db=db)
-    if not delete:
-        raise HTTPException(detail=f"test case with id {id} not found",
-                            status_code=404)
-
-    # TODO: change to Response object cuz it's not an error/exception
-    raise HTTPException(detail=f"test case with id {id} is deleted",
-                        status_code=204)
+    services.test_cases_service.delete_test_case(id=id, db=db)

@@ -1,8 +1,21 @@
+from typing import List
+
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
 from db.models.test_case_model import TestCaseOrm, TestCaseStepOrm
-from entities.test_case_entity import TestCaseRequest
+from entities.test_case_entity import TestCaseRequest, TestCaseStepRequest
+
+
+def validate_test_case_steps(steps: List[TestCaseStepRequest]):
+    steps.sort(key=lambda step: step.order)
+    if steps[0].order != 1:
+        raise HTTPException(detail=f"Order must start from 1",
+                            status_code=400)
+    for i, step in enumerate(steps):
+        if step.order != i + 1:
+            raise HTTPException(detail=f"Order is not consecutive",
+                                status_code=400)
 
 
 def get_test_cases(db: Session, skip: int = 0, limit: int = 50):
@@ -19,18 +32,15 @@ def get_one_test_case(db: Session, id: int):
 
 
 def create_test_case(db: Session, new_case: TestCaseRequest):
+    # Validating order of the steps
+    validate_test_case_steps(new_case.steps)
+
     new_one = TestCaseOrm(
         title=new_case.title,
         priority=new_case.priority
     )
     db.add(new_one)
     db.flush()
-
-    # Validating order of the steps
-    for i in new_case.steps:
-        # TODO: validate
-        pass
-
     for step in new_case.steps:
         new_step = TestCaseStepOrm(test_case_id=new_one.id,
                                    order=step.order,
@@ -44,6 +54,9 @@ def create_test_case(db: Session, new_case: TestCaseRequest):
 
 
 def update_test_case(db: Session, id: int, new_item: TestCaseRequest):
+    # Validating order of the steps
+    validate_test_case_steps(new_item.steps)
+
     found = db.query(TestCaseOrm).filter(TestCaseOrm.id == id).first()
     if not found:
         raise HTTPException(detail=f"test case with id {id} not found",

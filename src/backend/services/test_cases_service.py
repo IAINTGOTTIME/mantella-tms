@@ -2,15 +2,15 @@ from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
 from db.models.test_case_model import TestCaseOrm, TestCaseStepOrm
-from entities.test_case_entities import TestCase, TestCaseRequest
+from entities.test_case_entity import TestCase, TestCaseRequest
 
 
-def get_test_cases(skip: int = 0, limit: int = 50, db: Session = None):
+def get_test_cases(db: Session, skip: int = 0, limit: int = 50):
     test_cases = db.query(TestCase).offset(skip).limit(limit).all()
     return test_cases
 
 
-def get_one_test_case(id: int, db: Session):
+def get_one_test_case(db: Session, id: int):
     one = db.query(TestCase).filter(TestCaseOrm.id == id).first()
     if not one:
         raise HTTPException(detail=f"test case with id {id} not found",
@@ -18,7 +18,7 @@ def get_one_test_case(id: int, db: Session):
     return one
 
 
-def create_test_case(new_case: TestCaseRequest, db: Session):
+def create_test_case(db: Session, new_case: TestCaseRequest):
     new_one = TestCaseOrm(
         title=new_case.title,
         priority=new_case.priority
@@ -54,7 +54,7 @@ def update_test_case(db: Session, id: int, new_item: TestCase):
     return new_one
 
 
-def delete_test_case(id: int, db: Session, ):
+def delete_test_case(db: Session, id: int):
     delete_case = db.query(TestCaseStepOrm).filter(
         TestCaseStepOrm.test_case_id == id).first()
     if not delete_case:

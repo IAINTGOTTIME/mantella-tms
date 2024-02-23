@@ -6,7 +6,6 @@ check_lists_router = APIRouter(
 )
 
 
-
 @check_lists_router.get("/")
 def get_check_lists():
     pass

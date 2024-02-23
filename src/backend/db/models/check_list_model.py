@@ -1,7 +1,7 @@
 from typing import List
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from db.engine import Base
+from db.models.base_model import Base
 
 
 class CheckList(Base):

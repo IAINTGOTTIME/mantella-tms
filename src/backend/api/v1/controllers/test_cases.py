@@ -4,7 +4,7 @@ from fastapi import APIRouter, HTTPException, Depends
 
 import services
 from db.engine import get_db, session
-from entities.test_case_entity import TestCase, TestCaseRequest
+from entities.test_case_entities import TestCase, TestCaseRequest
 from services import test_cases_service
 
 test_cases_router = APIRouter(

@@ -9,4 +9,14 @@ class CheckListItem(BaseModel):
 
 class CheckList(BaseModel):
     id: int
+    title: str
     items: List[CheckListItem]
+
+
+class CheckListItemRequest(BaseModel):
+    description: str
+
+
+class CheckListRequest(BaseModel):
+    title: str
+    items: List[CheckListItemRequest]

@@ -2,7 +2,7 @@ from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
 from db.models.test_case_model import TestCaseOrm, TestCaseStepOrm
-from entities.test_case_entity import TestCaseRequest
+from entities.test_case_entities import TestCaseRequest
 
 
 def get_test_cases(db: Session, skip: int = 0, limit: int = 50):

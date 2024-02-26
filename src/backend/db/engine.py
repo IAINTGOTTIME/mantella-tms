@@ -1,15 +1,15 @@
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, Session
-
+from sqlalchemy.ext.asyncio import async_session
+from sqlalchemy.orm import Session, sessionmaker
 from db.settings import DBSettings
 
 settings = DBSettings()
 
 engine = create_engine(
-    url=settings.database_url
+    url=settings.sync_database_url
 )
 
-session = sessionmaker(engine)
+session = sessionmaker(engine, expire_on_commit=False)
 
 
 def get_db() -> Session:

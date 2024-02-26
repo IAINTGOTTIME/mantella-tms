@@ -2,6 +2,8 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class DBSettings(BaseSettings):
+    PRIVATE: str
+    PUBLIC: str
     DB_HOST: str
     DB_PORT: int
     DB_USER: str
@@ -9,9 +11,19 @@ class DBSettings(BaseSettings):
     DB_NAME: str
 
     @property
-    def database_url(self):
+    def sync_database_url(self):
         return (f"postgresql+psycopg2://"
                 f"{self.DB_USER}:{self.DB_PASS}"
                 f"@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}")
+
+    @property
+    def async_database_url(self):
+        return (f"postgresql+asyncpg://"
+                f"{self.DB_USER}:{self.DB_PASS}"
+                f"@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}")
+
+    @property
+    def get_public_jwt(self):
+        return self.PUBLIC
 
     model_config = SettingsConfigDict(env_file=".env")

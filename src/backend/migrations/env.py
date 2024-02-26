@@ -5,7 +5,9 @@ from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 
 from db.engine import settings
-from db.models.base_model import Base
+from db.models.user_model import Base
+from db.models.test_case_model import Base
+from db.models.check_list_model import Base
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

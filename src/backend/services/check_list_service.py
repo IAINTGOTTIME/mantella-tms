@@ -1,16 +1,17 @@
 from fastapi import HTTPException
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Session
 
 from db.models.check_list_model import CheckListOrm, CheckListItemOrm
 from entities.check_lists_entities import CheckListRequest
 
 
-def get_check_lists(db: Session, skip: int = 0, limit: int = 50):
-    check_lists = db.query(CheckListOrm).offset(skip).limit(limit).all()
+async def get_check_lists(db: AsyncSession, skip: int = 0, limit: int = 50):
+    check_lists = db.get(CheckListOrm).offset(skip).limit(limit).all()
     return check_lists
 
 
-def get_one_check_list(db: Session, id: int):
+async def get_one_check_list(db: Session, id: int):
     one = db.query(CheckListOrm).filter(CheckListOrm.id == id).first()
     if not one:
         raise HTTPException(detail=f"check-list with id {id} not found",
@@ -18,7 +19,7 @@ def get_one_check_list(db: Session, id: int):
     return one
 
 
-def create_check_list(db: Session, check_list: CheckListRequest):
+async def create_check_list(db: Session, check_list: CheckListRequest):
     new_one = CheckListOrm(
         title=check_list.title
     )
@@ -35,7 +36,7 @@ def create_check_list(db: Session, check_list: CheckListRequest):
     return new_one
 
 
-def update_check_list(db: Session, id: int, new_check_list: CheckListRequest):
+async def update_check_list(db: Session, id: int, new_check_list: CheckListRequest):
     found = db.query(CheckListOrm).filter(CheckListOrm.id == id).first()
     if not found:
         raise HTTPException(detail=f"check-list with id {id} not found",
@@ -55,7 +56,7 @@ def update_check_list(db: Session, id: int, new_check_list: CheckListRequest):
     return found
 
 
-def delete_check_list(db: Session, id: int):
+async def delete_check_list(db: Session, id: int):
     to_delete = db.query(CheckListOrm).filter(CheckListOrm.id == id).first()
     if not to_delete:
         raise HTTPException(detail=f"check-list with id {id} not found",

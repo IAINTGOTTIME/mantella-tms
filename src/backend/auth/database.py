@@ -2,13 +2,14 @@ from typing import AsyncGenerator
 from fastapi import Depends
 from fastapi_users.db import SQLAlchemyBaseUserTableUUID, SQLAlchemyUserDatabase
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
-from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy.orm import Mapped, mapped_column
+
 from db.engine import settings
 from db.models.base_model import Base
 
 
 class User(SQLAlchemyBaseUserTableUUID, Base):
-    pass
+    username: Mapped[str] = mapped_column(nullable=False)
 
 
 engine = create_async_engine(settings.async_database_url)

@@ -6,12 +6,12 @@ from db.models.check_list_model import CheckListOrm, CheckListItemOrm
 from entities.check_lists_entities import CheckListRequest
 
 
-async def get_check_lists(db: AsyncSession, skip: int = 0, limit: int = 50):
-    check_lists = db.get(CheckListOrm).offset(skip).limit(limit).all()
+def get_check_lists(db: Session, skip: int = 0, limit: int = 50):
+    check_lists = db.query(CheckListOrm).offset(skip).limit(limit).all()
     return check_lists
 
 
-async def get_one_check_list(db: Session, id: int):
+def get_one_check_list(db: Session, id: int):
     one = db.query(CheckListOrm).filter(CheckListOrm.id == id).first()
     if not one:
         raise HTTPException(detail=f"check-list with id {id} not found",
@@ -19,7 +19,7 @@ async def get_one_check_list(db: Session, id: int):
     return one
 
 
-async def create_check_list(db: Session, check_list: CheckListRequest):
+def create_check_list(db: Session, check_list: CheckListRequest):
     new_one = CheckListOrm(
         title=check_list.title
     )
@@ -36,7 +36,7 @@ async def create_check_list(db: Session, check_list: CheckListRequest):
     return new_one
 
 
-async def update_check_list(db: Session, id: int, new_check_list: CheckListRequest):
+def update_check_list(db: Session, id: int, new_check_list: CheckListRequest):
     found = db.query(CheckListOrm).filter(CheckListOrm.id == id).first()
     if not found:
         raise HTTPException(detail=f"check-list with id {id} not found",
@@ -56,7 +56,7 @@ async def update_check_list(db: Session, id: int, new_check_list: CheckListReque
     return found
 
 
-async def delete_check_list(db: Session, id: int):
+def delete_check_list(db: Session, id: int):
     to_delete = db.query(CheckListOrm).filter(CheckListOrm.id == id).first()
     if not to_delete:
         raise HTTPException(detail=f"check-list with id {id} not found",

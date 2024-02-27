@@ -1,19 +1,21 @@
 import uuid
 from typing import Optional
-
 from fastapi import Depends, Request
 from fastapi_users import BaseUserManager, FastAPIUsers, UUIDIDMixin
 from fastapi_users.authentication import AuthenticationBackend, JWTStrategy, CookieTransport
 from fastapi_users.db import SQLAlchemyUserDatabase
 
-from auth.database import User, get_user_db, settings
+from auth.database import User, get_user_db
+from db.engine import settings
 
-SECRET = settings.get_public_jwt
+PUBLIC_KEY = settings.public_jwt
+
+PRIVATE_KEY = settings.private_jwt
 
 
 class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
-    reset_password_token_secret = SECRET
-    verification_token_secret = SECRET
+    reset_password_token_secret = PRIVATE_KEY
+    verification_token_secret = PRIVATE_KEY
 
     async def on_after_register(self, user: User, request: Optional[Request] = None):
         print(f"User {user.id} has registered.")
@@ -37,7 +39,12 @@ cookie_transport = CookieTransport(cookie_max_age=3600)
 
 
 def get_jwt_strategy() -> JWTStrategy:
-    return JWTStrategy(secret=SECRET, lifetime_seconds=3600, algorithm="")
+    return JWTStrategy(
+        secret=PRIVATE_KEY,
+        lifetime_seconds=3600,
+        algorithm="RS256",
+        public_key=PUBLIC_KEY,
+    )
 
 
 auth_backend = AuthenticationBackend(

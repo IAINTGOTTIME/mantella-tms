@@ -2,8 +2,8 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class DBSettings(BaseSettings):
-    PRIVATE: str
     PUBLIC: str
+    PRIVATE: str
     DB_HOST: str
     DB_PORT: int
     DB_USER: str
@@ -23,7 +23,11 @@ class DBSettings(BaseSettings):
                 f"@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}")
 
     @property
-    def get_public_jwt(self):
+    def private_jwt(self):
+        return self.PRIVATE
+
+    @property
+    def public_jwt(self):
         return self.PUBLIC
 
     model_config = SettingsConfigDict(env_file=".env")

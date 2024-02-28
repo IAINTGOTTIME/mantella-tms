@@ -8,7 +8,6 @@ uvicorn = "*"
 sqlalchemy = "*"
 motor = "*"
 pytest = "*"
-bcrypt = "*"
 fastapi = "*"
 psycopg2-binary = "*"
 pydantic-settings = "*"
@@ -16,6 +15,7 @@ alembic = "*"
 fastapi-users = {extras = ["sqlalchemy"], version = "*"}
 asyncpg = "*"
 sqlalchemy_utils = "*"
+bcrypt = "4.0.1"
 
 [dev-packages]
 

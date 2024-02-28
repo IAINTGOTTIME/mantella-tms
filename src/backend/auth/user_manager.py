@@ -1,21 +1,23 @@
+import os
 import uuid
 from typing import Optional
 from fastapi import Depends, Request
 from fastapi_users import BaseUserManager, FastAPIUsers, UUIDIDMixin
-from fastapi_users.authentication import AuthenticationBackend, JWTStrategy, CookieTransport
+from fastapi_users.authentication import AuthenticationBackend, JWTStrategy, CookieTransport, BearerTransport
 from fastapi_users.db import SQLAlchemyUserDatabase
-
 from auth.database import User, get_user_db
-from db.engine import settings
 
-PUBLIC_KEY = settings.public_jwt
+root = os.path.dirname("__file__")
+with open(os.path.join(root, "certs/private.pem"), 'r') as file:
+    PRIVATE_KEY = file.read()
 
-PRIVATE_KEY = settings.private_jwt
+with open(os.path.join(root, "certs/public.pem"), 'r') as file:
+    PUBLIC_KEY = file.read()
 
 
 class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
-    reset_password_token_secret = PRIVATE_KEY
-    verification_token_secret = PRIVATE_KEY
+    reset_password_token_secret = PUBLIC_KEY
+    verification_token_secret = PUBLIC_KEY
 
     async def on_after_register(self, user: User, request: Optional[Request] = None):
         print(f"User {user.id} has registered.")

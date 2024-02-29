@@ -8,16 +8,13 @@ from fastapi_users.db import SQLAlchemyUserDatabase
 from auth.database import User, get_user_db
 
 root = os.path.dirname("__file__")
-with open(os.path.join(root, "certs/private.pem"), 'r') as file:
-    PRIVATE_KEY = file.read()
-
-with open(os.path.join(root, "certs/public.pem"), 'r') as file:
-    PUBLIC_KEY = file.read()
+with open(os.path.join(root, "certs/secret.env"), 'r') as file:
+    SECRET = file.read()
 
 
 class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
-    reset_password_token_secret = PUBLIC_KEY
-    verification_token_secret = PUBLIC_KEY
+    reset_password_token_secret = SECRET
+    verification_token_secret = SECRET
 
     async def on_after_register(self, user: User, request: Optional[Request] = None):
         print(f"User {user.id} has registered.")
@@ -38,14 +35,15 @@ async def get_user_manager(user_db: SQLAlchemyUserDatabase = Depends(get_user_db
 
 
 cookie_transport = CookieTransport(cookie_max_age=3600)
+# bearer_transport = BearerTransport(tokenUrl="auth/jwt/login")
 
 
 def get_jwt_strategy() -> JWTStrategy:
     return JWTStrategy(
-        secret=PRIVATE_KEY,
+        secret=SECRET,
         lifetime_seconds=3600,
-        algorithm="RS256",
-        public_key=PUBLIC_KEY,
+        # algorithm="RS256",
+        # public_key=PUBLIC_KEY
     )
 
 

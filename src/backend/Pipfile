@@ -15,7 +15,8 @@ alembic = "*"
 fastapi-users = {extras = ["sqlalchemy"], version = "*"}
 asyncpg = "*"
 sqlalchemy_utils = "*"
-bcrypt = "4.0.1"
+bcrypt = "*"
+
 
 [dev-packages]
 

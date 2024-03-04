@@ -1,6 +1,5 @@
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
-
 from db.models.check_list_model import CheckListOrm, CheckListItemOrm
 from entities.check_lists_entities import CheckListRequest
 

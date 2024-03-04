@@ -9,6 +9,10 @@ from db.models.base_model import Base
 class TestCaseOrm(Base):
     __tablename__ = "test_case"
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    test_suite_id: Mapped[int] = mapped_column(ForeignKey("test_suite.id"),
+                                               nullable=False,
+                                               index=True)
+    test_suite: Mapped['TestSuiteOrm'] = relationship(back_populates="test_case")
     title: Mapped[str] = mapped_column(nullable=False)
     priority: Mapped[int] = mapped_column(nullable=False)
     steps: Mapped[List['TestCaseStepOrm']] = relationship(

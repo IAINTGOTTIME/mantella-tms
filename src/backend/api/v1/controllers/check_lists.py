@@ -1,8 +1,6 @@
 from typing import List
-
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-
 from db.engine import get_db
 from entities.check_lists_entities import CheckList, CheckListRequest
 from services import check_list_service

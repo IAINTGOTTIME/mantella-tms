@@ -12,6 +12,7 @@ class TestCaseStep(BaseModel):
 
 class TestCase(BaseModel):
     id: int
+    test_suite: int
     title: str
     steps: List[TestCaseStep]
     priority: int
@@ -27,3 +28,4 @@ class TestCaseRequest(BaseModel):
     title: str
     steps: List[TestCaseStepRequest]
     priority: int
+

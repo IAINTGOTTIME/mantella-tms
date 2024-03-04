@@ -4,17 +4,17 @@ from sqlalchemy.orm import Session
 
 from db.models.test_case_model import TestCaseOrm, TestCaseStepOrm
 from db.models.test_suite_model import TestSuiteOrm
-from entities.test_case_entities import TestCaseRequest, TestCaseStepRequest
+from entities.test_case_entities import TestCaseStepRequest, TestCaseRequest
 from entities.test_suite_entities import TestSuiteRequest
 
 
-def validate_test_suite(test_case: List[TestCaseRequest]):
-    test_case.sort(key=lambda test_case: test_case.priority)
-    if test_case[0].priority != 1:
+def validate_test_suite(test_cases: List[TestCaseRequest]):
+    test_cases.sort(key=lambda test_case: test_case.priority)
+    if test_cases[0].priority != 1:
         raise HTTPException(detail=f"Priority must start from 1",
                             status_code=400)
-    for i, test_case in enumerate(test_case):
-        if test_case.test_case[i].priority != i + 1:
+    for i, test_case in enumerate(test_cases):
+        if test_case.priority != i + 1:
             raise HTTPException(detail=f"Priority is not consecutive",
                                 status_code=400)
 
@@ -45,7 +45,7 @@ def get_one_test_suite(db: Session, id: int):
 
 def create_test_suite(db: Session, new_suite: TestSuiteRequest):
     validate_test_suite(new_suite.test_case)
-    for i, test_case in enumerate(new_suite.test_case):
+    for i, steps in enumerate(new_suite.test_case):
         validate_test_case_steps(new_suite.test_case[i].steps)
 
     new_one = TestSuiteOrm(
@@ -53,9 +53,10 @@ def create_test_suite(db: Session, new_suite: TestSuiteRequest):
     )
     db.add(new_one)
     db.flush()
-    for i, test_case in enumerate(new_suite.test_case):
-        new_test_case = TestCaseOrm(title=new_suite.test_case[i].title,
-                                    priority=new_suite.test_case[i].priority)
+    for test_case in new_suite.test_case:
+        new_test_case = TestCaseOrm(test_suite_id=new_one.id,
+                                    title=test_case.title,
+                                    priority=test_case.priority)
         db.add(new_test_case)
         db.flush()
         for step in test_case.steps:
@@ -64,13 +65,13 @@ def create_test_suite(db: Session, new_suite: TestSuiteRequest):
                                        description=step.description,
                                        expected_result=step.expected_result)
             db.add(new_step)
+            db.refresh(new_test_case)
     db.commit()
     db.refresh(new_one)
     return new_one
 
 
 def update_test_suite(db: Session, id: int, new_suite: TestSuiteRequest):
-
     validate_test_suite(new_suite.test_case)
     for i, test_case in enumerate(new_suite.test_case):
         validate_test_case_steps(new_suite.test_case[i].steps)

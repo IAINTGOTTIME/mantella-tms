@@ -6,9 +6,10 @@ from fastapi_users import BaseUserManager, FastAPIUsers, UUIDIDMixin
 from fastapi_users.authentication import AuthenticationBackend, JWTStrategy, CookieTransport, BearerTransport
 from fastapi_users.db import SQLAlchemyUserDatabase
 from auth.database import User, get_user_db
+from auth.send_massege import send_mail
 
 root = os.path.dirname("__file__")
-with open(os.path.join(root, "certs/secret.env"), 'r') as file:
+with open(os.path.join(root, "ENV/secret.env"), 'r') as file:
     SECRET = file.read()
 
 
@@ -17,12 +18,13 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
     verification_token_secret = SECRET
 
     async def on_after_register(self, user: User, request: Optional[Request] = None):
-        print(f"User {user.id} has registered.")
+        return f"User {user.id} has registered."
 
     async def on_after_forgot_password(
             self, user: User, token: str, request: Optional[Request] = None
     ):
-        print(f"User {user.id} has forgot their password. Reset token: {token}")
+        send_mail(recipient_mail=user.email, token=token)
+        return "Paste the token from the message on your email"
 
     async def on_after_request_verify(
             self, user: User, token: str, request: Optional[Request] = None
@@ -35,15 +37,12 @@ async def get_user_manager(user_db: SQLAlchemyUserDatabase = Depends(get_user_db
 
 
 cookie_transport = CookieTransport(cookie_max_age=3600)
-# bearer_transport = BearerTransport(tokenUrl="auth/jwt/login")
 
 
 def get_jwt_strategy() -> JWTStrategy:
     return JWTStrategy(
         secret=SECRET,
         lifetime_seconds=3600,
-        # algorithm="RS256",
-        # public_key=PUBLIC_KEY
     )
 
 

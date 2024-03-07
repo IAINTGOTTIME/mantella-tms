@@ -2,10 +2,13 @@ from typing import List
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
+from api.v1 import test_cases_router
 from auth.user_manager import current_active_user
 from db.engine import get_db
+from entities.check_lists_entities import CheckList, CheckListRequest
+from entities.test_case_entities import TestCase, TestCaseRequest
 from entities.test_suite_entities import TestSuite, TestSuiteRequest
-from services import test_suite_service
+from services import test_suite_service, test_cases_service, check_list_service
 
 test_suite_router = APIRouter(
     tags=["test_suite"],

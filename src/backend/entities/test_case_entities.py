@@ -1,5 +1,5 @@
 from typing import List
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, field_validator
 
 
 class TestCaseStep(BaseModel):
@@ -12,7 +12,7 @@ class TestCaseStep(BaseModel):
 
 class TestCase(BaseModel):
     id: int
-    test_suite: int
+    test_suite_id: int
     title: str
     steps: List[TestCaseStep]
     priority: int
@@ -28,4 +28,3 @@ class TestCaseRequest(BaseModel):
     title: str
     steps: List[TestCaseStepRequest]
     priority: int
-

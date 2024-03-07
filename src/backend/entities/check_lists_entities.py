@@ -4,11 +4,13 @@ from typing import List
 
 class CheckListItem(BaseModel):
     id: int
+    check_list_id: int
     description: str
 
 
 class CheckList(BaseModel):
     id: int
+    test_suite_id: int
     title: str
     items: List[CheckListItem]
 

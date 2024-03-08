@@ -1,11 +1,6 @@
-from typing import List
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
-
-from db.models.check_list_model import CheckListOrm, CheckListItemOrm
-from db.models.test_case_model import TestCaseOrm, TestCaseStepOrm
 from db.models.test_suite_model import TestSuiteOrm
-from entities.test_case_entities import TestCaseStepRequest, TestCaseRequest
 from entities.test_suite_entities import TestSuiteRequest
 
 

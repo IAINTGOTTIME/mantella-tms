@@ -26,11 +26,11 @@ def get_test_cases(db: Session, suite_id: int, skip: int = 0, limit: int = 50):
 
 
 def get_one_test_case(db: Session, suite_id: int, id: int):
-    one = db.query(TestCaseOrm).filter(TestCaseOrm.test_suite_id == suite_id).first()
-    if not one:
+    suite = db.query(TestCaseOrm).filter(TestCaseOrm.test_suite_id == suite_id).first()
+    if not suite:
         raise HTTPException(detail=f"test suite with id {suite_id} not found",
                             status_code=404)
-    one.filter(TestCaseOrm.id == id).first()
+    one = db.query(TestCaseOrm).filter(TestCaseOrm.id == id).first()
     if not one:
         raise HTTPException(detail=f"test suite with id {id} not found",
                             status_code=404)

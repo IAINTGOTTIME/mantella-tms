@@ -13,11 +13,11 @@ def get_check_lists(db: Session, suite_id: int, skip: int = 0, limit: int = 50):
 
 
 def get_one_check_list(db: Session, suite_id: int, id: int):
-    one = db.query(CheckListOrm).filter(CheckListOrm.test_suite_id == suite_id).first()
-    if not one:
+    suite = db.query(CheckListOrm).filter(CheckListOrm.test_suite_id == suite_id).first()
+    if not suite:
         raise HTTPException(detail=f"test suite with id {suite_id} not found",
                             status_code=404)
-    one.filter(CheckListOrm.id == id).first()
+    one = db.query(CheckListOrm).filter(CheckListOrm.id == id).first()
     if not one:
         raise HTTPException(detail=f"test suite with id {suite_id} not found",
                             status_code=404)
@@ -43,11 +43,11 @@ def create_check_list(db: Session, suite_id: int, check_list: CheckListRequest):
 
 
 def update_check_list(db: Session, suite_id: int, id: int, new_check_list: CheckListRequest):
-    found = db.query(CheckListOrm).filter(CheckListOrm.test_suite_id == suite_id).first()
-    if not found:
+    suite = db.query(CheckListOrm).filter(CheckListOrm.test_suite_id == suite_id).first()
+    if not suite:
         raise HTTPException(detail=f"test suite with id {suite_id} not found",
                             status_code=404)
-    found.filter(CheckListOrm.id == id).first()
+    found = db.query(CheckListOrm).filter(CheckListOrm.id == id).first()
     if not found:
         raise HTTPException(detail=f"test suite with id {suite_id} not found",
                             status_code=404)

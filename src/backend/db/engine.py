@@ -1,5 +1,4 @@
 from sqlalchemy import create_engine
-from sqlalchemy.ext.asyncio import async_session
 from sqlalchemy.orm import Session, sessionmaker
 from db.settings import DBSettings
 

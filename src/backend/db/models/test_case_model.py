@@ -2,17 +2,14 @@ from typing import List
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from db.models.base_model import Base
-
+from db.models.relationship_model import relationship_test_case_table
 
 
 class TestCaseOrm(Base):
     __tablename__ = "test_case"
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    test_suite_id: Mapped[int] = mapped_column(ForeignKey("test_suite.id"),
-                                               nullable=False,
-                                               index=True
-                                               )
-    test_suite: Mapped['TestSuiteOrm'] = relationship(back_populates="test_case")
+    test_suite: Mapped[List['TestSuiteOrm'] | None] = relationship(secondary=relationship_test_case_table,
+                                                                   back_populates="test_case")
     title: Mapped[str] = mapped_column(nullable=False)
     priority: Mapped[int] = mapped_column(nullable=False)
     steps: Mapped[List['TestCaseStepOrm']] = relationship(

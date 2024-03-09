@@ -55,3 +55,41 @@ def delete_test_suite(id: int,
                       db: Session = Depends(get_db),
                       user=Depends(current_active_user)):
     test_suite_service.delete_test_suite(id=id, db=db)
+
+
+@test_suite_router.put("/{suite_id}/test-cases/{id}", response_model=TestSuite)
+def append_test_case(suite_id: int,
+                     id: int,
+                     db: Session = Depends(get_db),
+                     user=Depends(current_active_user)):
+    new_one = test_suite_service.append_test_case(id=id,
+                                                  suite_id=suite_id,
+                                                  db=db)
+    return new_one
+
+
+@test_suite_router.put("/{suite_id}/check-list/{id}", response_model=TestSuite)
+def append_check_list(suite_id: int,
+                      id: int,
+                      db: Session = Depends(get_db),
+                      user=Depends(current_active_user)):
+    new_one = test_suite_service.append_check_list(id=id,
+                                                   suite_id=suite_id,
+                                                   db=db)
+    return new_one
+
+
+@test_suite_router.delete("/{suite_id}/test-cases/{id}")
+def delete_test_case(suite_id: int,
+                     id: int,
+                     db: Session = Depends(get_db),
+                     user=Depends(current_active_user)):
+    test_suite_service.delete_test_case(suite_id=suite_id, id=id, db=db)
+
+
+@test_suite_router.delete("/{suite_id}/check-list/{id}")
+def delete_check_list(suite_id: int,
+                      id: int,
+                      db: Session = Depends(get_db),
+                      user=Depends(current_active_user)):
+    test_suite_service.delete_check_list(suite_id=suite_id, id=id, db=db)

@@ -9,7 +9,7 @@ from auth.database import User, get_user_db
 from auth.send_massege import send_mail
 
 root = os.path.dirname("__file__")
-with open(os.path.join(root, "ENV/secret.env"), 'r') as file:
+with open(os.path.join(root, "ENV/secret"), 'r') as file:
     SECRET = file.read()
 
 

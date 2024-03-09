@@ -13,20 +13,18 @@ check_lists_router = APIRouter(
 
 
 @check_lists_router.get("/", response_model=List[CheckList])
-def get_check_list(suite_id: int,
-                   skip: int = 0,
+def get_check_list(skip: int = 0,
                    limit: int = 50,
                    db=Depends(get_db),
                    user=Depends(current_active_user)):
-    return check_list_service.get_check_lists(suite_id=suite_id, db=db, skip=skip, limit=limit)
+    return check_list_service.get_check_lists(db=db, skip=skip, limit=limit)
 
 
-@check_lists_router.get("/{id}{suite_id}", response_model=CheckList)
-def get_one_check_list(suite_id: int,
-                       id: int,
+@check_lists_router.get("/{id}", response_model=CheckList)
+def get_one_check_list(id: int,
                        db: Session = Depends(get_db),
                        user=Depends(current_active_user)):
-    one = check_list_service.get_one_check_list(suite_id=suite_id, id=id, db=db)
+    one = check_list_service.get_one_check_list(id=id, db=db)
     if not one:
         raise HTTPException(detail=f"check-list with id {id} not found",
                             status_code=404)
@@ -34,34 +32,28 @@ def get_one_check_list(suite_id: int,
 
 
 @check_lists_router.post("/", response_model=CheckList)
-def create_check_list(suite_id: int,
-                      new_check_list: CheckListRequest,
+def create_check_list(new_check_list: CheckListRequest,
                       db: Session = Depends(get_db),
                       user=Depends(current_active_user)):
-    new_one = check_list_service.create_check_list(suite_id=suite_id,
-                                                   check_list=new_check_list,
+    new_one = check_list_service.create_check_list(check_list=new_check_list,
                                                    db=db)
     return new_one
 
 
-@check_lists_router.put("/{id}{suite_id}", response_model=CheckList)
-def update_check_list(suite_id: int,
-                      id: int,
+@check_lists_router.put("/{id}", response_model=CheckList)
+def update_check_list(id: int,
                       new_item: CheckListRequest,
                       db: Session = Depends(get_db),
                       user=Depends(current_active_user)):
-    new_one = check_list_service.update_check_list(suite_id=suite_id,
-                                                   id=id,
+    new_one = check_list_service.update_check_list(id=id,
                                                    db=db,
                                                    new_check_list=new_item)
     return new_one
 
 
-@check_lists_router.delete("/{id}{suite_id}")
-def delete_check_list(suite_id: int,
-                      id: int,
+@check_lists_router.delete("/{id}")
+def delete_check_list(id: int,
                       db: Session = Depends(get_db),
                       user=Depends(current_active_user)):
-    check_list_service.delete_check_list(suite_id=suite_id,
-                                         id=id,
+    check_list_service.delete_check_list(id=id,
                                          db=db)

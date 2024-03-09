@@ -2,7 +2,6 @@ from typing import List
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from db.models.test_case_model import TestCaseOrm, TestCaseStepOrm
-from db.models.test_suite_model import TestSuiteOrm
 from entities.test_case_entities import TestCaseRequest, TestCaseStepRequest
 
 
@@ -17,19 +16,12 @@ def validate_test_case_steps(steps: List[TestCaseStepRequest]):
                                 status_code=400)
 
 
-def get_test_cases(db: Session, suite_id: int, skip: int = 0, limit: int = 50):
-    test_cases = db.query(TestCaseOrm).filter(TestCaseOrm.test_suite_id == suite_id).offset(skip).limit(limit).all()
-    if not test_cases:
-        raise HTTPException(detail=f"test suite with id {suite_id} not found",
-                            status_code=404)
+def get_test_cases(db: Session, skip: int = 0, limit: int = 50):
+    test_cases = db.query(TestCaseOrm).offset(skip).limit(limit).all()
     return test_cases
 
 
-def get_one_test_case(db: Session, suite_id: int, id: int):
-    suite = db.query(TestCaseOrm).filter(TestCaseOrm.test_suite_id == suite_id).first()
-    if not suite:
-        raise HTTPException(detail=f"test suite with id {suite_id} not found",
-                            status_code=404)
+def get_one_test_case(db: Session, id: int):
     one = db.query(TestCaseOrm).filter(TestCaseOrm.id == id).first()
     if not one:
         raise HTTPException(detail=f"test suite with id {id} not found",
@@ -37,11 +29,7 @@ def get_one_test_case(db: Session, suite_id: int, id: int):
     return one
 
 
-def create_test_case(db: Session, suite_id: int, new_case: TestCaseRequest):
-    one = db.query(TestSuiteOrm).filter(TestSuiteOrm.id == suite_id).first()
-    if not one:
-        raise HTTPException(detail=f"test suite with id {suite_id} not found",
-                            status_code=404)
+def create_test_case(db: Session, new_case: TestCaseRequest):
     validate_test_case_steps(new_case.steps)
     if new_case.priority < 1:
         raise HTTPException(detail=f"priority cannot be less than 1",
@@ -51,7 +39,6 @@ def create_test_case(db: Session, suite_id: int, new_case: TestCaseRequest):
                             status_code=404)
 
     new_one = TestCaseOrm(
-        test_suite_id=suite_id,
         title=new_case.title,
         priority=new_case.priority
     )
@@ -69,19 +56,13 @@ def create_test_case(db: Session, suite_id: int, new_case: TestCaseRequest):
     return new_one
 
 
-def update_test_case(db: Session, suite_id: int, id: int, new_item: TestCaseRequest):
-    one = db.query(TestSuiteOrm).filter(TestSuiteOrm.id == suite_id).first()
-    if not one:
-        raise HTTPException(detail=f"test suite with id {suite_id} not found",
-                            status_code=404)
-
+def update_test_case(db: Session, id: int, new_item: TestCaseRequest):
     validate_test_case_steps(new_item.steps)
 
     found = db.query(TestCaseOrm).filter(TestCaseOrm.id == id).first()
     if not found:
         raise HTTPException(detail=f"test case with id {id} not found",
                             status_code=404)
-    found.test_suite_id = suite_id
     found.title = new_item.title
     found.priority = new_item.priority
 
@@ -99,11 +80,7 @@ def update_test_case(db: Session, suite_id: int, id: int, new_item: TestCaseRequ
     return found
 
 
-def delete_test_case(db: Session, suite_id: int, id: int):
-    suite = db.query(TestSuiteOrm).filter(TestSuiteOrm.id == suite_id).first()
-    if not suite:
-        raise HTTPException(detail=f"test suite with id {suite_id} not found",
-                            status_code=404)
+def delete_test_case(db: Session, id: int):
     found = db.query(TestCaseOrm).filter(TestCaseOrm.id == id).first()
     if not found:
         raise HTTPException(detail=f"test case with id {id} not found",

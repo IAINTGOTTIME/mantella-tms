@@ -6,7 +6,7 @@ from email.header import Header
 
 def send_mail(recipient_mail: str, token: str):
     root = os.path.dirname("__file__")
-    with open(os.path.join(root, "ENV/email.env"), 'r') as file:
+    with open(os.path.join(root, "ENV/email"), 'r') as file:
         password = file.read()
 
     message = MIMEText(f"To recover your password, enter this token:\n{token}",

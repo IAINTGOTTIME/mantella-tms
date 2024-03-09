@@ -10,7 +10,6 @@ class CheckListItem(BaseModel):
 
 class CheckList(BaseModel):
     id: int
-    test_suite_id: int
     title: str
     items: List[CheckListItem]
 

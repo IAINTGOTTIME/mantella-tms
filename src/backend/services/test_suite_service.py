@@ -1,5 +1,10 @@
+from typing import List
+
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
+
+from db.models.check_list_model import CheckListOrm
+from db.models.test_case_model import TestCaseOrm
 from db.models.test_suite_model import TestSuiteOrm
 from entities.test_suite_entities import TestSuiteRequest
 
@@ -45,3 +50,63 @@ def delete_test_suite(db: Session, id: int):
                             status_code=404)
     db.delete(delete_suite)
     db.commit()
+
+
+def delete_test_case(db: Session, suite_id: int, id: int):
+    found = db.query(TestSuiteOrm).filter(TestSuiteOrm.id == suite_id).first()
+    if not found:
+        raise HTTPException(detail=f"Test suite with id {suite_id} not found",
+                            status_code=404)
+    test_case = db.query(TestCaseOrm).filter(TestCaseOrm.id == id).first()
+    if not found:
+        raise HTTPException(detail=f"Test case with id {id} not found",
+                            status_code=404)
+    found.test_case.remove(test_case)
+    db.commit()
+    db.refresh(found)
+    return found
+
+
+def delete_check_list(db: Session, suite_id: int, id: int):
+    found = db.query(TestSuiteOrm).filter(TestSuiteOrm.id == suite_id).first()
+    if not found:
+        raise HTTPException(detail=f"Test suite with id {suite_id} not found",
+                            status_code=404)
+    check_list = db.query(CheckListOrm).filter(CheckListOrm.id == id).first()
+    if not CheckListOrm:
+        raise HTTPException(detail=f"Test case with id {id} not found",
+                            status_code=404)
+    found.check_list.remove(check_list)
+    db.commit()
+    db.refresh(found)
+    return found
+
+
+def append_test_case(db: Session, suite_id: int, id: int):
+    found = db.query(TestSuiteOrm).filter(TestSuiteOrm.id == suite_id).first()
+    if not found:
+        raise HTTPException(detail=f"Test suite with id {suite_id} not found",
+                            status_code=404)
+    test_case = db.query(TestCaseOrm).filter(TestCaseOrm.id == id).first()
+    if not found:
+        raise HTTPException(detail=f"Test case with id {id} not found",
+                            status_code=404)
+    found.test_case = [test_case]
+    db.commit()
+    db.refresh(found)
+    return found
+
+
+def append_check_list(db: Session, suite_id: int, id: int):
+    found = db.query(TestSuiteOrm).filter(TestSuiteOrm.id == suite_id).first()
+    if not found:
+        raise HTTPException(detail=f"Test suite with id {suite_id} not found",
+                            status_code=404)
+    check_list = db.query(CheckListOrm).filter(CheckListOrm.id == id).first()
+    if not CheckListOrm:
+        raise HTTPException(detail=f"Test case with id {id} not found",
+                            status_code=404)
+    found.check_list = [check_list]
+    db.commit()
+    db.refresh(found)
+    return found

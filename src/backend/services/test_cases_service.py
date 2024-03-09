@@ -1,6 +1,7 @@
 from typing import List
 
 from fastapi import HTTPException
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Session
 
 from db.models.test_case_model import TestCaseOrm, TestCaseStepOrm

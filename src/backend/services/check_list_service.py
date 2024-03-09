@@ -1,7 +1,6 @@
 from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Session
-
 from db.models.check_list_model import CheckListOrm, CheckListItemOrm
 from entities.check_lists_entities import CheckListRequest
 
@@ -14,7 +13,7 @@ def get_check_lists(db: Session, skip: int = 0, limit: int = 50):
 def get_one_check_list(db: Session, id: int):
     one = db.query(CheckListOrm).filter(CheckListOrm.id == id).first()
     if not one:
-        raise HTTPException(detail=f"check-list with id {id} not found",
+        raise HTTPException(detail=f"test suite with id {id} not found",
                             status_code=404)
     return one
 
@@ -39,7 +38,7 @@ def create_check_list(db: Session, check_list: CheckListRequest):
 def update_check_list(db: Session, id: int, new_check_list: CheckListRequest):
     found = db.query(CheckListOrm).filter(CheckListOrm.id == id).first()
     if not found:
-        raise HTTPException(detail=f"check-list with id {id} not found",
+        raise HTTPException(detail=f"test suite with id {id} not found",
                             status_code=404)
 
     found.title = new_check_list.title
@@ -57,9 +56,9 @@ def update_check_list(db: Session, id: int, new_check_list: CheckListRequest):
 
 
 def delete_check_list(db: Session, id: int):
-    to_delete = db.query(CheckListOrm).filter(CheckListOrm.id == id).first()
-    if not to_delete:
-        raise HTTPException(detail=f"check-list with id {id} not found",
+    delete = db.query(CheckListOrm).filter(CheckListOrm.id == id).first()
+    if not delete:
+        raise HTTPException(detail=f"Test suite with id {id} not found",
                             status_code=404)
-    db.delete(to_delete)
+    db.delete(delete)
     db.commit()

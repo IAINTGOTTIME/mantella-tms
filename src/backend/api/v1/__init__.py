@@ -1,5 +1,4 @@
 from fastapi import APIRouter
-
 from auth.schemas import UserRead, UserCreate, UserUpdate
 from auth.user_manager import auth_backend, fastapi_users
 from .controllers.check_lists import check_lists_router
@@ -14,7 +13,9 @@ router.include_router(test_cases_router)
 router.include_router(check_lists_router)
 router.include_router(test_suite_router)
 router.include_router(
-    fastapi_users.get_auth_router(auth_backend), prefix="/auth/jwt", tags=["auth"]
+    fastapi_users.get_auth_router(auth_backend),
+    prefix="/auth/jwt",
+    tags=["auth"]
 )
 router.include_router(
     fastapi_users.get_register_router(UserRead, UserCreate),

@@ -4,6 +4,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from db.models.base_model import Base
 from db.models.relationship_model import relationship_check_list_table
 
+
 class CheckListOrm(Base):
     __tablename__ = "check_list"
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)

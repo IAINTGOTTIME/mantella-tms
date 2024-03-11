@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from db.engine import get_db
 from entities.check_lists_entities import CheckList, CheckListRequest
 from services import check_list_service
-from auth.user_manager import get_user_manager, current_active_user
+from auth.user_manager import current_active_user
 
 check_lists_router = APIRouter(
     tags=["check-lists"],

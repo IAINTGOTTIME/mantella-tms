@@ -1,16 +1,12 @@
-import os
 import uuid
 from typing import Optional
 from fastapi import Depends, Request
 from fastapi_users import BaseUserManager, FastAPIUsers, UUIDIDMixin
-from fastapi_users.authentication import AuthenticationBackend, JWTStrategy, CookieTransport, BearerTransport
+from fastapi_users.authentication import AuthenticationBackend, JWTStrategy, CookieTransport
 from fastapi_users.db import SQLAlchemyUserDatabase
 from auth.database import User, get_user_db
 from auth.send_massege import send_mail
-
-root = os.path.dirname("__file__")
-with open(os.path.join(root, "ENV/secret"), 'r') as file:
-    SECRET = file.read()
+from settings import SECRET
 
 
 class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):

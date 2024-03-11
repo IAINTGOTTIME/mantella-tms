@@ -128,11 +128,10 @@ ENV/.env
 .venv
 env/
 venv/
-ENV/
 env.bak/
 venv.bak/
-certs/
-certs
+ENV/db.env
+
 
 # Spyder project settings
 .spyderproject

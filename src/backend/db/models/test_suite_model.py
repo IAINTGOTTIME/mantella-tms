@@ -9,8 +9,6 @@ class TestSuiteOrm(Base):
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     name: Mapped[str] = mapped_column(nullable=False)
     test_case: Mapped[List['TestCaseOrm'] | None] = relationship(back_populates="test_suite",
-                                                                 secondary=relationship_test_case_table,
-                                                                 cascade='save-update, merge, delete')
+                                                                 secondary=relationship_test_case_table)
     check_list: Mapped[List['CheckListOrm'] | None] = relationship(back_populates="test_suite",
-                                                                   secondary=relationship_check_list_table,
-                                                                   cascade='save-update, merge, delete')
+                                                                   secondary=relationship_check_list_table)

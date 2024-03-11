@@ -3,10 +3,7 @@ import time
 from datetime import datetime
 from fastapi import Request
 from settings import LEVEL
-# root = os.path.dirname("__file__")
-# with open(os.path.join(root, "ENV/logger_lvl"), 'r') as file:
-#     LEVEL = file.read()
-# level = logging.getLevelName(LoggerSettings.logger_lvl)
+
 logger = logging.getLogger()
 logger.setLevel(level=LEVEL)
 formatter = logging.Formatter(fmt="'%(asctime)s | %(levelname)-8s | %(message)s'")

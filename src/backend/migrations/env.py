@@ -6,6 +6,7 @@ from sqlalchemy import pool
 
 from db.engine import settings
 from db.models.user_model import Base
+from db.models.project_model import Base
 from db.models.relationship_model import Base
 from db.models.test_case_model import Base
 from db.models.test_suite_model import Base

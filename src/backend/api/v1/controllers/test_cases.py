@@ -16,7 +16,8 @@ test_cases_router = APIRouter(
 @test_cases_router.get("/", response_model=List[TestCase])
 def get_test_cases(skip: int = 0, limit: int = 50,
                    db: Session = Depends(get_db), user=Depends(current_active_user)):
-    test_cases = services.test_cases_service.get_test_cases(skip=skip,
+    test_cases = services.test_cases_service.get_test_cases(user=user,
+                                                            skip=skip,
                                                             limit=limit,
                                                             db=db)
     return test_cases
@@ -33,7 +34,8 @@ def get_one_test_case(id: int, db: Session = Depends(get_db), user=Depends(curre
 
 @test_cases_router.post("/", response_model=TestCase)
 def create_test_case(new_case: TestCaseRequest, db: Session = Depends(get_db), user=Depends(current_active_user)):
-    new_one = services.test_cases_service.create_test_case(new_case=new_case,
+    new_one = services.test_cases_service.create_test_case(user=user,
+                                                           new_case=new_case,
                                                            db=db)
     return new_one
 

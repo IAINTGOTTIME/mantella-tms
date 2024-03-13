@@ -1,7 +1,8 @@
 from typing import List
-from fastapi import HTTPException
-from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi import HTTPException, Depends
 from sqlalchemy.orm import Session
+
+from auth.user_manager import current_active_user
 from db.models.test_case_model import TestCaseOrm, TestCaseStepOrm
 from entities.test_case_entities import TestCaseRequest, TestCaseStepRequest
 
@@ -17,8 +18,8 @@ def validate_test_case_steps(steps: List[TestCaseStepRequest]):
                                 status_code=400)
 
 
-def get_test_cases(db: Session, skip: int = 0, limit: int = 50):
-    test_cases = db.query(TestCaseOrm).offset(skip).limit(limit).all()
+def get_test_cases(db: Session, skip: int = 0, limit: int = 50, user=Depends(current_active_user)):
+    test_cases = db.query(TestCaseOrm).filter(TestCaseOrm.author_id == user).offset(skip).limit(limit).all()
     return test_cases
 
 
@@ -30,7 +31,7 @@ def get_one_test_case(db: Session, id: int):
     return one
 
 
-def create_test_case(db: Session, new_case: TestCaseRequest):
+def create_test_case(db: Session, new_case: TestCaseRequest, user=Depends(current_active_user)):
     validate_test_case_steps(new_case.steps)
     if new_case.priority < 1:
         raise HTTPException(detail=f"priority cannot be less than 1",
@@ -40,6 +41,7 @@ def create_test_case(db: Session, new_case: TestCaseRequest):
                             status_code=404)
 
     new_one = TestCaseOrm(
+        author_id=user.id,
         title=new_case.title,
         priority=new_case.priority
     )
@@ -64,6 +66,7 @@ def update_test_case(db: Session, id: int, new_item: TestCaseRequest):
     if not found:
         raise HTTPException(detail=f"test case with id {id} not found",
                             status_code=404)
+    found.author_id = found.author_id
     found.title = new_item.title
     found.priority = new_item.priority
 

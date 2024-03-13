@@ -1,25 +1,26 @@
-from fastapi import HTTPException
-from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi import HTTPException, Depends
 from sqlalchemy.orm import Session
+from auth.user_manager import current_active_user
 from db.models.check_list_model import CheckListOrm, CheckListItemOrm
 from entities.check_lists_entities import CheckListRequest
 
 
-def get_check_lists(db: Session, skip: int = 0, limit: int = 50):
-    check_lists = db.query(CheckListOrm).offset(skip).limit(limit).all()
+def get_check_lists(db: Session, skip: int = 0, limit: int = 50, user=Depends(current_active_user)):
+    check_lists = db.query(CheckListOrm).filter(CheckListOrm.author_id == user.id).offset(skip).limit(limit).all()
     return check_lists
 
 
 def get_one_check_list(db: Session, id: int):
     one = db.query(CheckListOrm).filter(CheckListOrm.id == id).first()
     if not one:
-        raise HTTPException(detail=f"test suite with id {id} not found",
+        raise HTTPException(detail=f"Check list with id {id} not found",
                             status_code=404)
     return one
 
 
-def create_check_list(db: Session, check_list: CheckListRequest):
+def create_check_list(db: Session, check_list: CheckListRequest, user=Depends(current_active_user)):
     new_one = CheckListOrm(
+        author_id=user.id,
         title=check_list.title
     )
     db.add(new_one)
@@ -38,9 +39,9 @@ def create_check_list(db: Session, check_list: CheckListRequest):
 def update_check_list(db: Session, id: int, new_check_list: CheckListRequest):
     found = db.query(CheckListOrm).filter(CheckListOrm.id == id).first()
     if not found:
-        raise HTTPException(detail=f"test suite with id {id} not found",
+        raise HTTPException(detail=f"Check list with id {id} not found",
                             status_code=404)
-
+    found.author_id = found.author_id
     found.title = new_check_list.title
 
     if len(new_check_list.items) != len(found.items):
@@ -58,7 +59,7 @@ def update_check_list(db: Session, id: int, new_check_list: CheckListRequest):
 def delete_check_list(db: Session, id: int):
     delete = db.query(CheckListOrm).filter(CheckListOrm.id == id).first()
     if not delete:
-        raise HTTPException(detail=f"Test suite with id {id} not found",
+        raise HTTPException(detail=f"Check list with id {id} not found",
                             status_code=404)
     db.delete(delete)
     db.commit()

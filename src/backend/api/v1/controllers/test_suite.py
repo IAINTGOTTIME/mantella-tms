@@ -1,5 +1,5 @@
 from typing import List
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from auth.user_manager import current_active_user
 from db.engine import get_db
@@ -14,10 +14,10 @@ test_suite_router = APIRouter(
 
 @test_suite_router.get("/", response_model=List[TestSuite])
 def get_test_suite(skip: int = 0,
-                   limit: int = 50,
+                   limit: int = 10,
                    db=Depends(get_db),
                    user=Depends(current_active_user)):
-    return test_suite_service.get_test_suite(db, skip, limit)
+    return test_suite_service.get_test_suite(db=db, skip=skip, limit=limit)
 
 
 @test_suite_router.get("/{id}", response_model=TestSuite)
@@ -25,9 +25,6 @@ def get_one_test_suite(id: int,
                        db=Depends(get_db),
                        user=Depends(current_active_user)):
     one = test_suite_service.get_one_test_suite(id=id, db=db)
-    if not one:
-        raise HTTPException(detail=f"check-list with id {id} not found",
-                            status_code=404)
     return one
 
 

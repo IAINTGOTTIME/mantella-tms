@@ -3,6 +3,7 @@ from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from db.models.base_model import Base
 from db.models.relationship_model import relationship_test_case_table
+import uuid
 
 
 class TestCaseOrm(Base):
@@ -10,6 +11,10 @@ class TestCaseOrm(Base):
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     test_suite: Mapped[List['TestSuiteOrm'] | None] = relationship(secondary=relationship_test_case_table,
                                                                    back_populates="test_case")
+    author_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("user.id"),
+                                                 nullable=False,
+                                                 index=True)
+    author: Mapped['UserOrm'] = relationship(back_populates="test_case")
     title: Mapped[str] = mapped_column(nullable=False)
     priority: Mapped[int] = mapped_column(nullable=False)
     steps: Mapped[List['TestCaseStepOrm']] = relationship(

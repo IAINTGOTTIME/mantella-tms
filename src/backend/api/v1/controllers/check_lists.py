@@ -1,5 +1,5 @@
 from typing import List
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from db.engine import get_db
 from entities.check_lists_entities import CheckList, CheckListRequest
@@ -14,22 +14,20 @@ check_lists_router = APIRouter(
 
 @check_lists_router.get("/", response_model=List[CheckList])
 def get_check_lists(skip: int = 0, limit: int = 50, db: Session = Depends(get_db), user=Depends(current_active_user)):
-    return check_list_service.get_check_lists(db, skip, limit)
+    return check_list_service.get_check_lists(user=user, db=db, skip=skip, limit=limit)
 
 
 @check_lists_router.get("/{id}", response_model=CheckList)
 def get_one_check_list(id: int, db: Session = Depends(get_db), user=Depends(current_active_user)):
     one = check_list_service.get_one_check_list(id=id, db=db)
-    if not one:
-        raise HTTPException(detail=f"check-list with id {id} not found",
-                            status_code=404)
     return one
 
 
 @check_lists_router.post("/", response_model=CheckList)
 def create_check_list(new_check_list: CheckListRequest,
                       db: Session = Depends(get_db), user=Depends(current_active_user)):
-    new_one = check_list_service.create_check_list(check_list=new_check_list,
+    new_one = check_list_service.create_check_list(user=user,
+                                                   check_list=new_check_list,
                                                    db=db)
     return new_one
 

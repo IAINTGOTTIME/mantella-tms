@@ -1,10 +1,11 @@
 from typing import List
+from uuid import UUID
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from auth.user_manager import current_active_user
 from db.engine import get_db
-from entities.project_entities import Project, ProjectRequest
-
+from entities.project_entities import Project, ProjectRequest, ProjectUser
+from services import project_service
 
 project_router = APIRouter(
     tags=["project"],
@@ -12,12 +13,16 @@ project_router = APIRouter(
 )
 
 
-@project_router.get("/", response_model=List[Project.id])
-def get_project(skip: int = 0,
-                limit: int = 2,
-                db=Depends(get_db),
-                user=Depends(current_active_user)):
-    return project_service.get_project(user=user, db=db, skip=skip, limit=limit)
+@project_router.get("/editor", response_model=List[ProjectUser])
+def get_project_editor(db=Depends(get_db),
+                       user=Depends(current_active_user)):
+    return project_service.get_project_editor(user=user, db=db)
+
+
+@project_router.get("/viewer", response_model=List[ProjectUser])
+def get_project_viewer(db=Depends(get_db),
+                       user=Depends(current_active_user)):
+    return project_service.get_project_viewer(user=user, db=db)
 
 
 @project_router.get("/{id}", response_model=Project)
@@ -44,6 +49,7 @@ def update_project(id: int,
                    db: Session = Depends(get_db),
                    user=Depends(current_active_user)):
     new_one = project_service.update_project(id=id,
+                                             user=user,
                                              db=db,
                                              new_project=new_project)
     return new_one
@@ -53,7 +59,7 @@ def update_project(id: int,
 def delete_project(id: int,
                    db: Session = Depends(get_db),
                    user=Depends(current_active_user)):
-    project_service.delete_test_suite(id=id, db=db)
+    project_service.delete_project(id=id, user=user, db=db)
 
 
 @project_router.put("/{project_id}/test-suite/{id}", response_model=Project)
@@ -63,27 +69,32 @@ def append_test_suite(project_id: int,
                       user=Depends(current_active_user)):
     new_one = project_service.append_test_suite(id=id,
                                                 project_id=project_id,
+                                                user=user,
                                                 db=db)
     return new_one
 
 
 @project_router.put("/{project_id}/editor", response_model=Project)
 def append_editor(project_id: int,
+                  id: UUID,
                   db: Session = Depends(get_db),
                   user=Depends(current_active_user)):
-    new_one = project_service.append_editort(user=user,
-                                             project_id=project_id,
-                                             db=db)
+    new_one = project_service.append_editor(user=user,
+                                            id=id,
+                                            project_id=project_id,
+                                            db=db)
     return new_one
 
 
 @project_router.put("/{project_id}/viewer", response_model=Project)
 def append_viewer(project_id: int,
+                  id: UUID,
                   db: Session = Depends(get_db),
                   user=Depends(current_active_user)):
-    new_one = project_service.append_viewert(user=user,
-                                             project_id=project_id,
-                                             db=db)
+    new_one = project_service.append_viewer(user=user,
+                                            id=id,
+                                            project_id=project_id,
+                                            db=db)
     return new_one
 
 
@@ -92,20 +103,29 @@ def delete_test_suite(project_id: int,
                       id: int,
                       db: Session = Depends(get_db),
                       user=Depends(current_active_user)):
-    project_service.delete_test_suite(project_id=project_id, id=id, db=db)
+    project_service.delete_test_suite(user=user,
+                                      id=id,
+                                      project_id=project_id,
+                                      db=db)
 
 
 @project_router.delete("/{project_id}/editor/{id}")
 def delete_editor(project_id: int,
-                  id: int,
+                  id: UUID,
                   db: Session = Depends(get_db),
                   user=Depends(current_active_user)):
-    project_service.delete_editort(project_id=project_id, id=id, db=db)
+    project_service.delete_editor(user=user,
+                                  project_id=project_id,
+                                  id=id,
+                                  db=db)
 
 
 @project_router.delete("/{suite_id}/viewer/{id}")
-def delete_viewer(suite_id: int,
-                  id: int,
+def delete_viewer(project_id: int,
+                  id: UUID,
                   db: Session = Depends(get_db),
                   user=Depends(current_active_user)):
-    project_service.delete_viewert(suite_id=suite_id, id=id, db=db)
+    project_service.delete_viewer(user=user,
+                                  project_id=project_id,
+                                  id=id,
+                                  db=db)

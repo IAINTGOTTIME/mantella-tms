@@ -22,7 +22,3 @@ class CheckListItemRequest(BaseModel):
 class CheckListRequest(BaseModel):
     title: str
     items: List[CheckListItemRequest]
-
-
-class CheckListUser(BaseModel):
-    id: int

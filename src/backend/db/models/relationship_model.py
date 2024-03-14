@@ -20,20 +20,23 @@ relationship_check_list_table = Table(
 relationship_project_editor = Table(
     "project_editor_relationship",
     Base.metadata,
+    Column("id", Integer, primary_key=True),
+    Column("project_id", Integer, ForeignKey("project.id"), nullable=False),
     Column("user_id", UUID, ForeignKey("user.id"), nullable=False),
-    Column("project_id", Integer, ForeignKey("project.id"), nullable=False)
 )
 
 relationship_project_viewer = Table(
     "project_viewer_relationship",
     Base.metadata,
+    Column("id", Integer, primary_key=True),
+    Column("project_id", Integer, ForeignKey("project.id"), nullable=False),
     Column("user_id", UUID, ForeignKey("user.id"), nullable=False),
-    Column("project_id", Integer, ForeignKey("project.id"), nullable=False)
 )
 
 relationship_project_test_suite = Table(
     "project_test_suite_relationship",
     Base.metadata,
+    Column("id", Integer, primary_key=True),
     Column("project_id", Integer, ForeignKey("project.id"), nullable=False),
     Column("test_suite_id", Integer, ForeignKey("test_suite.id"), nullable=False)
 )

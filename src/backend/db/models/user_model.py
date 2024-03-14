@@ -7,14 +7,15 @@ from db.models.relationship_model import relationship_project_editor, relationsh
 
 class UserOrm(Base):
     __tablename__ = "user"
+    __table_args__ = {'extend_existing': True}
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
     username: Mapped[str] = mapped_column(nullable=False)
     email: Mapped[str] = mapped_column(nullable=False)
     hashed_password: Mapped[str] = mapped_column(nullable=False)
-    project_editor: Mapped[List['ProjectOrm'] | None] = relationship(secondary=relationship_project_editor,
-                                                                     back_populates="editor")
-    project_viewer: Mapped[List['ProjectOrm'] | None] = relationship(secondary=relationship_project_viewer,
-                                                                     back_populates="viewer")
+    project_editor: Mapped[List['ProjectOrm'] | None] = relationship(back_populates="editor",
+                                                                     secondary=relationship_project_editor)
+    project_viewer: Mapped[List['ProjectOrm'] | None] = relationship(back_populates="viewer",
+                                                                     secondary=relationship_project_viewer)
     test_case: Mapped[List['TestCaseOrm'] | None] = relationship(back_populates="author")
     check_list: Mapped[List['CheckListOrm'] | None] = relationship(back_populates="author")
     is_active: Mapped[bool] = mapped_column(default=True, nullable=False)

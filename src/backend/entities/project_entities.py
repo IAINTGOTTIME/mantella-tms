@@ -1,6 +1,6 @@
 from typing import List
 from pydantic import BaseModel
-from auth.schemas import UserId
+from auth.schemas import User
 from entities.test_suite_entities import TestSuite
 
 
@@ -9,8 +9,8 @@ class Project(BaseModel):
     name: str
     description: str
     test_suite: List['TestSuite'] | None
-    editor: List['UserId'] | None
-    viewer: List['UserId'] | None
+    editor: List['User'] | None
+    viewer: List['User'] | None
 
 
 class ProjectRequest(BaseModel):
@@ -20,3 +20,5 @@ class ProjectRequest(BaseModel):
 
 class ProjectUser(BaseModel):
     id: int
+    name: str
+    description: str

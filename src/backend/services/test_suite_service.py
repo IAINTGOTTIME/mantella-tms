@@ -1,8 +1,5 @@
-from typing import List
-
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
-
 from db.models.check_list_model import CheckListOrm
 from db.models.test_case_model import TestCaseOrm
 from db.models.test_suite_model import TestSuiteOrm
@@ -91,7 +88,7 @@ def append_test_case(db: Session, suite_id: int, id: int):
     if not found:
         raise HTTPException(detail=f"Test case with id {id} not found",
                             status_code=404)
-    found.test_case = [test_case]
+    found.test_case.append(test_case)
     db.commit()
     db.refresh(found)
     return found
@@ -106,7 +103,7 @@ def append_check_list(db: Session, suite_id: int, id: int):
     if not CheckListOrm:
         raise HTTPException(detail=f"Test case with id {id} not found",
                             status_code=404)
-    found.check_list = [check_list]
+    found.check_list.append(check_list)
     db.commit()
     db.refresh(found)
     return found

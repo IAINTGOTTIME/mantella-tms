@@ -161,7 +161,7 @@ def delete_editor(db: Session, project_id: int, id: UUID, user=Depends(current_a
     if user_db not in project.editor:
         raise HTTPException(detail=f"You are not the editor of a project with id {project_id}",
                             status_code=404)
-    delete_user = db.query(UserOrm).filter(UserOrm.id == id)
+    delete_user = db.query(UserOrm).filter(UserOrm.id == id).first()
     if not delete_user:
         raise HTTPException(detail=f"User with id {id} not found",
                             status_code=404)
@@ -180,7 +180,7 @@ def delete_viewer(db: Session, project_id: int, id: UUID, user=Depends(current_a
     if user_db not in project.editor:
         raise HTTPException(detail=f"You are not the editor of a project with id {project_id}",
                             status_code=404)
-    delete_user = db.query(UserOrm).filter(UserOrm.id == id)
+    delete_user = db.query(UserOrm).filter(UserOrm.id == id).first()
     if not delete_user:
         raise HTTPException(detail=f"User with id {id} not found",
                             status_code=404)

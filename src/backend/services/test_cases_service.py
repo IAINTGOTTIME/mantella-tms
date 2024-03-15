@@ -69,7 +69,6 @@ def update_test_case(db: Session, id: int, new_item: TestCaseRequest):
     found.author_id = found.author_id
     found.title = new_item.title
     found.priority = new_item.priority
-
     if len(new_item.steps) != len(found.steps):
         raise HTTPException(detail=f"number of steps must be the same",
                             status_code=400)

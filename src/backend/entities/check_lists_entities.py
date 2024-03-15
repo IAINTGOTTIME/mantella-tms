@@ -1,5 +1,8 @@
+import uuid
+
 from pydantic import BaseModel, UUID4
 from typing import List
+from uuid import UUID
 
 
 class CheckListItem(BaseModel):
@@ -10,7 +13,8 @@ class CheckListItem(BaseModel):
 
 class CheckList(BaseModel):
     id: int
-    author: UUID4
+    author_id: UUID
+    change_from: UUID | None
     title: str
     items: List[CheckListItem]
 

@@ -1,15 +1,15 @@
-"""create table
+"""create account table
 
-Revision ID: 093c2732c056
+Revision ID: 6b81a4399127
 Revises: 
-Create Date: 2024-03-14 16:02:34.685856
+Create Date: 2024-03-15 17:42:48.397101
 
 """
 from alembic import op
 import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
-revision = '093c2732c056'
+revision = '6b81a4399127'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -21,14 +21,6 @@ def upgrade():
                     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
                     sa.Column('name', sa.String(), nullable=False),
                     sa.Column('description', sa.String(), nullable=True),
-                    sa.Column('created_at', sa.DateTime(), server_default=sa.text("TIMEZONE('utc', CURRENT_TIMESTAMP)"),
-                              nullable=False),
-                    sa.Column('updated_at', sa.DateTime(), nullable=True),
-                    sa.PrimaryKeyConstraint('id')
-                    )
-    op.create_table('test_suite',
-                    sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
-                    sa.Column('name', sa.String(), nullable=False),
                     sa.Column('created_at', sa.DateTime(), server_default=sa.text("TIMEZONE('utc', CURRENT_TIMESTAMP)"),
                               nullable=False),
                     sa.Column('updated_at', sa.DateTime(), nullable=True),
@@ -49,8 +41,9 @@ def upgrade():
                     )
     op.create_table('check_list',
                     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
-                    sa.Column('author_id', sa.Uuid(), nullable=False),
                     sa.Column('title', sa.String(), nullable=False),
+                    sa.Column('author_id', sa.Uuid(), nullable=False),
+                    sa.Column('change_from', sa.Uuid(), nullable=True),
                     sa.Column('created_at', sa.DateTime(), server_default=sa.text("TIMEZONE('utc', CURRENT_TIMESTAMP)"),
                               nullable=False),
                     sa.Column('updated_at', sa.DateTime(), nullable=True),
@@ -60,33 +53,26 @@ def upgrade():
     op.create_index(op.f('ix_check_list_author_id'), 'check_list', ['author_id'], unique=False)
     op.create_table('project_editor_relationship',
                     sa.Column('id', sa.Integer(), nullable=False),
-                    sa.Column('project_id', sa.Integer(), nullable=False),
                     sa.Column('user_id', sa.UUID(), nullable=False),
+                    sa.Column('project_id', sa.Integer(), nullable=False),
                     sa.ForeignKeyConstraint(['project_id'], ['project.id'], ),
                     sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
                     sa.PrimaryKeyConstraint('id')
                     )
-    op.create_table('project_test_suite_relationship',
-                    sa.Column('id', sa.Integer(), nullable=False),
-                    sa.Column('project_id', sa.Integer(), nullable=False),
-                    sa.Column('test_suite_id', sa.Integer(), nullable=False),
-                    sa.ForeignKeyConstraint(['project_id'], ['project.id'], ),
-                    sa.ForeignKeyConstraint(['test_suite_id'], ['test_suite.id'], ),
-                    sa.PrimaryKeyConstraint('id')
-                    )
     op.create_table('project_viewer_relationship',
                     sa.Column('id', sa.Integer(), nullable=False),
-                    sa.Column('project_id', sa.Integer(), nullable=False),
                     sa.Column('user_id', sa.UUID(), nullable=False),
+                    sa.Column('project_id', sa.Integer(), nullable=False),
                     sa.ForeignKeyConstraint(['project_id'], ['project.id'], ),
                     sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
                     sa.PrimaryKeyConstraint('id')
                     )
     op.create_table('test_case',
                     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
-                    sa.Column('author_id', sa.Uuid(), nullable=False),
                     sa.Column('title', sa.String(), nullable=False),
                     sa.Column('priority', sa.Integer(), nullable=False),
+                    sa.Column('author_id', sa.Uuid(), nullable=False),
+                    sa.Column('change_from', sa.Uuid(), nullable=True),
                     sa.Column('created_at', sa.DateTime(), server_default=sa.text("TIMEZONE('utc', CURRENT_TIMESTAMP)"),
                               nullable=False),
                     sa.Column('updated_at', sa.DateTime(), nullable=True),
@@ -94,6 +80,18 @@ def upgrade():
                     sa.PrimaryKeyConstraint('id')
                     )
     op.create_index(op.f('ix_test_case_author_id'), 'test_case', ['author_id'], unique=False)
+    op.create_table('test_suite',
+                    sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
+                    sa.Column('name', sa.String(), nullable=False),
+                    sa.Column('author_id', sa.Uuid(), nullable=False),
+                    sa.Column('change_from', sa.Uuid(), nullable=True),
+                    sa.Column('created_at', sa.DateTime(), server_default=sa.text("TIMEZONE('utc', CURRENT_TIMESTAMP)"),
+                              nullable=False),
+                    sa.Column('updated_at', sa.DateTime(), nullable=True),
+                    sa.ForeignKeyConstraint(['author_id'], ['user.id'], ),
+                    sa.PrimaryKeyConstraint('id')
+                    )
+    op.create_index(op.f('ix_test_suite_author_id'), 'test_suite', ['author_id'], unique=False)
     op.create_table('check_list_item',
                     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
                     sa.Column('check_list_id', sa.Integer(), nullable=False),
@@ -110,6 +108,14 @@ def upgrade():
                     sa.Column('test_suite_id', sa.Integer(), nullable=False),
                     sa.Column('check_list_id', sa.Integer(), nullable=False),
                     sa.ForeignKeyConstraint(['check_list_id'], ['check_list.id'], ),
+                    sa.ForeignKeyConstraint(['test_suite_id'], ['test_suite.id'], ),
+                    sa.PrimaryKeyConstraint('id')
+                    )
+    op.create_table('project_test_suite_relationship',
+                    sa.Column('id', sa.Integer(), nullable=False),
+                    sa.Column('project_id', sa.Integer(), nullable=False),
+                    sa.Column('test_suite_id', sa.Integer(), nullable=False),
+                    sa.ForeignKeyConstraint(['project_id'], ['project.id'], ),
                     sa.ForeignKeyConstraint(['test_suite_id'], ['test_suite.id'], ),
                     sa.PrimaryKeyConstraint('id')
                     )
@@ -142,17 +148,18 @@ def downgrade():
     op.drop_index(op.f('ix_test_case_step_test_case_id'), table_name='test_case_step')
     op.drop_table('test_case_step')
     op.drop_table('test_case_relationship')
+    op.drop_table('project_test_suite_relationship')
     op.drop_table('check_list_relationship')
     op.drop_index(op.f('ix_check_list_item_check_list_id'), table_name='check_list_item')
     op.drop_table('check_list_item')
+    op.drop_index(op.f('ix_test_suite_author_id'), table_name='test_suite')
+    op.drop_table('test_suite')
     op.drop_index(op.f('ix_test_case_author_id'), table_name='test_case')
     op.drop_table('test_case')
     op.drop_table('project_viewer_relationship')
-    op.drop_table('project_test_suite_relationship')
     op.drop_table('project_editor_relationship')
     op.drop_index(op.f('ix_check_list_author_id'), table_name='check_list')
     op.drop_table('check_list')
     op.drop_table('user')
-    op.drop_table('test_suite')
     op.drop_table('project')
     # ### end Alembic commands ###

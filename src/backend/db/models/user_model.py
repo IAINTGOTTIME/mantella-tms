@@ -12,12 +12,19 @@ class UserOrm(Base):
     username: Mapped[str] = mapped_column(nullable=False)
     email: Mapped[str] = mapped_column(nullable=False)
     hashed_password: Mapped[str] = mapped_column(nullable=False)
-    project_editor: Mapped[List['ProjectOrm'] | None] = relationship(back_populates="editor",
-                                                                     secondary=relationship_project_editor)
-    project_viewer: Mapped[List['ProjectOrm'] | None] = relationship(back_populates="viewer",
-                                                                     secondary=relationship_project_viewer)
-    test_case: Mapped[List['TestCaseOrm'] | None] = relationship(back_populates="author")
-    check_list: Mapped[List['CheckListOrm'] | None] = relationship(back_populates="author")
     is_active: Mapped[bool] = mapped_column(default=True, nullable=False)
     is_superuser: Mapped[bool] = mapped_column(default=False, nullable=False)
     is_verified: Mapped[bool] = mapped_column(default=False, nullable=False)
+    project_editor: Mapped[List['ProjectOrm'] | None] = relationship(back_populates="editor",
+                                                                     secondary=relationship_project_editor,
+                                                                     cascade='save-update, merge, delete')
+    project_viewer: Mapped[List['ProjectOrm'] | None] = relationship(back_populates="viewer",
+                                                                     secondary=relationship_project_viewer,
+                                                                     cascade='save-update, merge, delete')
+    test_case: Mapped[List['TestCaseOrm'] | None] = relationship(back_populates="author",
+                                                                 cascade='save-update, merge, delete')
+    check_list: Mapped[List['CheckListOrm'] | None] = relationship(back_populates="author",
+                                                                   cascade='save-update, merge, delete')
+    test_suite: Mapped[List['TestSuiteOrm'] | None] = relationship(back_populates="author",
+                                                                   cascade='save-update, merge, delete')
+

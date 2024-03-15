@@ -120,7 +120,7 @@ def delete_editor(project_id: int,
                                   db=db)
 
 
-@project_router.delete("/{suite_id}/viewer/{id}")
+@project_router.delete("/{project_id}/viewer/{id}")
 def delete_viewer(project_id: int,
                   id: UUID,
                   db: Session = Depends(get_db),

@@ -1,5 +1,5 @@
 from typing import List
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 import services
 from auth.user_manager import current_active_user
@@ -18,34 +18,28 @@ def get_test_cases(skip: int = 0,
                    limit: int = 50,
                    db: Session = Depends(get_db),
                    user=Depends(current_active_user)):
-    test_cases = services.test_cases_service.get_test_cases(user=user,
-                                                            skip=skip,
-                                                            limit=limit,
-                                                            db=db)
-    return test_cases
+    return services.test_cases_service.get_test_cases(user=user,
+                                                      skip=skip,
+                                                      limit=limit,
+                                                      db=db)
 
 
 @test_cases_router.get("/{id}", response_model=TestCase)
 def get_one_test_case(id: int,
                       db: Session = Depends(get_db),
                       user=Depends(current_active_user)):
-    one = services.test_cases_service.get_one_test_case(user=user,
-                                                        id=id,
-                                                        db=db)
-    if not one:
-        raise HTTPException(detail=f"test case with id {id} not found",
-                            status_code=404)
-    return one
+    return services.test_cases_service.get_one_test_case(user=user,
+                                                         id=id,
+                                                         db=db)
 
 
 @test_cases_router.post("/", response_model=TestCase)
 def create_test_case(new_case: TestCaseRequest,
                      db: Session = Depends(get_db),
                      user=Depends(current_active_user)):
-    new_one = services.test_cases_service.create_test_case(user=user,
-                                                           new_case=new_case,
-                                                           db=db)
-    return new_one
+    return services.test_cases_service.create_test_case(user=user,
+                                                        new_case=new_case,
+                                                        db=db)
 
 
 @test_cases_router.put("/{id}", response_model=TestCase)
@@ -53,14 +47,10 @@ def update_test_case(id: int,
                      new_item: TestCaseRequest,
                      db: Session = Depends(get_db),
                      user=Depends(current_active_user)):
-    new_one = services.test_cases_service.update_test_case(user=user,
-                                                           id=id,
-                                                           new_item=new_item,
-                                                           db=db)
-    if not new_one:
-        raise HTTPException(detail=f"test case with id {id} not found",
-                            status_code=404)
-    return new_one
+    return services.test_cases_service.update_test_case(user=user,
+                                                        id=id,
+                                                        new_item=new_item,
+                                                        db=db)
 
 
 @test_cases_router.delete("/{id}")

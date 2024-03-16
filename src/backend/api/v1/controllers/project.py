@@ -4,7 +4,10 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from auth.user_manager import current_active_user
 from db.engine import get_db
+from entities.check_lists_entities import CheckListRequest
 from entities.project_entities import Project, ProjectRequest, ProjectUser
+from entities.test_case_entities import TestCaseRequest
+from entities.test_suite_entities import TestSuiteRequest
 from services import project_service
 
 project_router = APIRouter(
@@ -62,19 +65,133 @@ def delete_project(id: int,
     project_service.delete_project(id=id, user=user, db=db)
 
 
-@project_router.put("/{project_id}/test-suite/{id}", response_model=Project)
+@project_router.put("/{project_id}/test-suite/{suite_id}", response_model=Project)
 def append_test_suite(project_id: int,
-                      id: int,
+                      suite_id: int,
                       db: Session = Depends(get_db),
                       user=Depends(current_active_user)):
-    new_one = project_service.append_test_suite(id=id,
+    new_one = project_service.append_test_suite(suite_id=suite_id,
                                                 project_id=project_id,
                                                 user=user,
                                                 db=db)
     return new_one
 
 
-@project_router.put("/{project_id}/editor", response_model=Project)
+@project_router.put("/{project_id}/test-suite/{suite_id}", response_model=Project)
+def update_test_suite(project_id: int,
+                      suite_id: int,
+                      new_suite: TestSuiteRequest,
+                      db: Session = Depends(get_db),
+                      user=Depends(current_active_user)
+                      ):
+    new_one = project_service.update_test_suite(suite_id=suite_id,
+                                                project_id=project_id,
+                                                user=user,
+                                                db=db,
+                                                new_suite=new_suite)
+    return new_one
+
+
+@project_router.delete("/{project_id}/test_suite/{suite_id}")
+def delete_test_suite(project_id: int,
+                      suite_id: int,
+                      db: Session = Depends(get_db),
+                      user=Depends(current_active_user)):
+    project_service.delete_test_suite(user=user,
+                                      suite_id=suite_id,
+                                      project_id=project_id,
+                                      db=db)
+
+
+@project_router.put("/{project_id}/test-suite/{suite_id}/test-case/{case_id}", response_model=Project)
+def append_test_case(project_id: int,
+                     case_id: int,
+                     suite_id: int,
+                     db: Session = Depends(get_db),
+                     user=Depends(current_active_user)):
+    new_one = project_service.append_test_case(suite_id=suite_id,
+                                               case_id=case_id,
+                                               project_id=project_id,
+                                               user=user,
+                                               db=db)
+    return new_one
+
+
+@project_router.put("/{project_id}/test-suite/{suite_id}/test-case/{case_id}", response_model=Project)
+def update_test_case(project_id: int,
+                     suite_id: int,
+                     case_id: int,
+                     new_case: TestCaseRequest,
+                     db: Session = Depends(get_db),
+                     user=Depends(current_active_user)
+                     ):
+    new_one = project_service.update_test_case(suite_id=suite_id,
+                                               case_id=case_id,
+                                               project_id=project_id,
+                                               new_case=new_case,
+                                               user=user,
+                                               db=db)
+    return new_one
+
+
+@project_router.delete("/{project_id}/test-suite/{suite_id}/test-case/{case_id}")
+def delete_test_case(project_id: int,
+                     suite_id: int,
+                     case_id: int,
+                     db: Session = Depends(get_db),
+                     user=Depends(current_active_user)):
+    project_service.delete_test_case(suite_id=suite_id,
+                                     case_id=case_id,
+                                     project_id=project_id,
+                                     user=user,
+                                     db=db)
+
+
+@project_router.put("/{project_id}/test-suite/{suite_id}/check-list/{list_id}", response_model=Project)
+def append_check_list(project_id: int,
+                      list_id: int,
+                      suite_id: int,
+                      db: Session = Depends(get_db),
+                      user=Depends(current_active_user)):
+    new_one = project_service.append_check_list(suite_id=suite_id,
+                                                list_id=list_id,
+                                                project_id=project_id,
+                                                user=user,
+                                                db=db)
+    return new_one
+
+
+@project_router.put("/{project_id}/test-suite/{suite_id}/check-list/{list_id}", response_model=Project)
+def update_check_list(project_id: int,
+                      suite_id: int,
+                      list_id: int,
+                      new_list: CheckListRequest,
+                      db: Session = Depends(get_db),
+                      user=Depends(current_active_user)
+                      ):
+    new_one = project_service.update_check_list(suite_id=suite_id,
+                                                list_id=list_id,
+                                                project_id=project_id,
+                                                new_list=new_list,
+                                                user=user,
+                                                db=db)
+    return new_one
+
+
+@project_router.delete("/{project_id}/test-suite/{suite_id}/check-list/{list_id}")
+def delete_check_list(project_id: int,
+                      suite_id: int,
+                      list_id: int,
+                      db: Session = Depends(get_db),
+                      user=Depends(current_active_user)):
+    project_service.delete_check_list(suite_id=suite_id,
+                                      list_id=list_id,
+                                      project_id=project_id,
+                                      user=user,
+                                      db=db)
+
+
+@project_router.put("/{project_id}/editor/{id}", response_model=Project)
 def append_editor(project_id: int,
                   id: UUID,
                   db: Session = Depends(get_db),
@@ -86,29 +203,6 @@ def append_editor(project_id: int,
     return new_one
 
 
-@project_router.put("/{project_id}/viewer", response_model=Project)
-def append_viewer(project_id: int,
-                  id: UUID,
-                  db: Session = Depends(get_db),
-                  user=Depends(current_active_user)):
-    new_one = project_service.append_viewer(user=user,
-                                            id=id,
-                                            project_id=project_id,
-                                            db=db)
-    return new_one
-
-
-@project_router.delete("/{project_id}/test_suite/{id}")
-def delete_test_suite(project_id: int,
-                      id: int,
-                      db: Session = Depends(get_db),
-                      user=Depends(current_active_user)):
-    project_service.delete_test_suite(user=user,
-                                      id=id,
-                                      project_id=project_id,
-                                      db=db)
-
-
 @project_router.delete("/{project_id}/editor/{id}")
 def delete_editor(project_id: int,
                   id: UUID,
@@ -118,6 +212,18 @@ def delete_editor(project_id: int,
                                   project_id=project_id,
                                   id=id,
                                   db=db)
+
+
+@project_router.put("/{project_id}/viewer/{id}", response_model=Project)
+def append_viewer(project_id: int,
+                  id: UUID,
+                  db: Session = Depends(get_db),
+                  user=Depends(current_active_user)):
+    new_one = project_service.append_viewer(user=user,
+                                            id=id,
+                                            project_id=project_id,
+                                            db=db)
+    return new_one
 
 
 @project_router.delete("/{project_id}/viewer/{id}")

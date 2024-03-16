@@ -1,9 +1,9 @@
 from typing import List
 from fastapi import HTTPException, Depends
 from sqlalchemy.orm import Session
-
 from auth.user_manager import current_active_user
 from db.models.test_case_model import TestCaseOrm, TestCaseStepOrm
+from db.models.user_model import UserOrm
 from entities.test_case_entities import TestCaseRequest, TestCaseStepRequest
 
 
@@ -18,28 +18,51 @@ def validate_test_case_steps(steps: List[TestCaseStepRequest]):
                                 status_code=400)
 
 
-def get_test_cases(db: Session, skip: int = 0, limit: int = 50, user=Depends(current_active_user)):
-    test_cases = db.query(TestCaseOrm).filter(TestCaseOrm.author_id == user).offset(skip).limit(limit).all()
+def validate_test_case_priority(priority: int):
+    if priority < 1:
+        raise HTTPException(detail=f"priority cannot be less than 1",
+                            status_code=404)
+    if priority > 5:
+        raise HTTPException(detail=f"priority cannot be greater than 5",
+                            status_code=404)
+
+
+def get_test_cases(db: Session,
+                   skip: int = 0,
+                   limit: int = 50,
+                   user=Depends(current_active_user)):
+    if not user.is_superuser():
+        test_cases = db.query(TestCaseOrm).filter(TestCaseOrm.author_id == user).offset(skip).limit(limit).all()
+        return test_cases
+    test_cases = db.query(TestCaseOrm).offset(skip).limit(limit).all()
     return test_cases
 
 
-def get_one_test_case(db: Session, id: int):
+def get_one_test_case(db: Session,
+                      id: int,
+                      user=Depends(current_active_user)):
     one = db.query(TestCaseOrm).filter(TestCaseOrm.id == id).first()
     if not one:
         raise HTTPException(detail=f"test suite with id {id} not found",
                             status_code=404)
+    if not user.is_superuser:
+        db_user = db.query(UserOrm).filter(UserOrm.id == user.id).first()
+        for test_case in db_user.test_case:
+            if not test_case:
+                raise HTTPException(detail=f"You don't have test case",
+                                    status_code=404)
+            if one not in test_case:
+                raise HTTPException(detail=f"You are not the author of a test case with id {id}",
+                                    status_code=404)
+            return one
     return one
 
 
-def create_test_case(db: Session, new_case: TestCaseRequest, user=Depends(current_active_user)):
+def create_test_case(db: Session,
+                     new_case: TestCaseRequest,
+                     user=Depends(current_active_user)):
     validate_test_case_steps(new_case.steps)
-    if new_case.priority < 1:
-        raise HTTPException(detail=f"priority cannot be less than 1",
-                            status_code=404)
-    if new_case.priority > 5:
-        raise HTTPException(detail=f"priority cannot be greater than 5",
-                            status_code=404)
-
+    validate_test_case_priority(new_case.priority)
     new_one = TestCaseOrm(
         author_id=user.id,
         title=new_case.title,
@@ -59,9 +82,11 @@ def create_test_case(db: Session, new_case: TestCaseRequest, user=Depends(curren
     return new_one
 
 
-def update_test_case(db: Session, id: int, new_item: TestCaseRequest):
+def update_test_case(db: Session,
+                     id: int,
+                     new_item: TestCaseRequest,
+                     user=Depends(current_active_user)):
     validate_test_case_steps(new_item.steps)
-
     found = db.query(TestCaseOrm).filter(TestCaseOrm.id == id).first()
     if not found:
         raise HTTPException(detail=f"test case with id {id} not found",
@@ -77,16 +102,40 @@ def update_test_case(db: Session, id: int, new_item: TestCaseRequest):
         step.description = new_item.steps[i].description
         step.expected_result = new_item.steps[i].expected_result
         step.order = new_item.steps[i].order
-
+    if not user.is_superuser:
+        db_user = db.query(UserOrm).filter(UserOrm.id == user.id).first()
+        for test_case in db_user.test_case:
+            if not test_case:
+                raise HTTPException(detail=f"You don't have test case",
+                                    status_code=404)
+            if found not in test_case:
+                raise HTTPException(detail=f"You are not the author of a test case with id {id}",
+                                    status_code=404)
+            db.commit()
+            db.refresh(found)
+            return found
     db.commit()
     db.refresh(found)
     return found
 
 
-def delete_test_case(db: Session, id: int):
+def delete_test_case(db: Session,
+                     id: int,
+                     user=Depends(current_active_user)):
     found = db.query(TestCaseOrm).filter(TestCaseOrm.id == id).first()
     if not found:
         raise HTTPException(detail=f"test case with id {id} not found",
                             status_code=404)
+    if not user.is_superuser:
+        db_user = db.query(UserOrm).filter(UserOrm.id == user.id).first()
+        for test_case in db_user.test_case:
+            if not test_case:
+                raise HTTPException(detail=f"You don't have test case",
+                                    status_code=404)
+            if found not in test_case:
+                raise HTTPException(detail=f"You are not the author of a test case with id {id}",
+                                    status_code=404)
+            db.delete(found)
+            db.commit()
     db.delete(found)
     db.commit()

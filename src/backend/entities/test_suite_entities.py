@@ -6,7 +6,7 @@ from entities.test_case_entities import TestCase
 
 class TestSuite(BaseModel):
     id: int
-    author: UUID4
+    author_id: UUID4
     change_from: UUID4
     name: str
     test_case: List['TestCase'] | None

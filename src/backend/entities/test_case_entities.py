@@ -12,7 +12,7 @@ class TestCaseStep(BaseModel):
 
 class TestCase(BaseModel):
     id: int
-    author: UUID4
+    author_id: UUID4
     change_from: UUID4
     title: str
     steps: List[TestCaseStep]

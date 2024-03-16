@@ -17,14 +17,19 @@ def get_test_suite(skip: int = 0,
                    limit: int = 10,
                    db=Depends(get_db),
                    user=Depends(current_active_user)):
-    return test_suite_service.get_test_suite(db=db, skip=skip, limit=limit)
+    return test_suite_service.get_test_suite(user=user,
+                                             db=db,
+                                             skip=skip,
+                                             limit=limit)
 
 
 @test_suite_router.get("/{id}", response_model=TestSuite)
 def get_one_test_suite(id: int,
                        db=Depends(get_db),
                        user=Depends(current_active_user)):
-    one = test_suite_service.get_one_test_suite(id=id, db=db)
+    one = test_suite_service.get_one_test_suite(user=user,
+                                                id=id,
+                                                db=db)
     return one
 
 
@@ -32,7 +37,8 @@ def get_one_test_suite(id: int,
 def create_test_suite(new_suite: TestSuiteRequest,
                       db: Session = Depends(get_db),
                       user=Depends(current_active_user)):
-    new_one = test_suite_service.create_test_suite(new_suite=new_suite,
+    new_one = test_suite_service.create_test_suite(user=user,
+                                                   new_suite=new_suite,
                                                    db=db)
     return new_one
 
@@ -41,7 +47,8 @@ def create_test_suite(new_suite: TestSuiteRequest,
 def update_test_suite(id: int, new_suite: TestSuiteRequest,
                       db: Session = Depends(get_db),
                       user=Depends(current_active_user)):
-    new_one = test_suite_service.update_test_suite(id=id,
+    new_one = test_suite_service.update_test_suite(user=user,
+                                                   id=id,
                                                    db=db,
                                                    new_suite=new_suite)
     return new_one
@@ -51,7 +58,9 @@ def update_test_suite(id: int, new_suite: TestSuiteRequest,
 def delete_test_suite(id: int,
                       db: Session = Depends(get_db),
                       user=Depends(current_active_user)):
-    test_suite_service.delete_test_suite(id=id, db=db)
+    test_suite_service.delete_test_suite(user=user,
+                                         id=id,
+                                         db=db)
 
 
 @test_suite_router.put("/{suite_id}/test-cases/{id}", response_model=TestSuite)
@@ -59,7 +68,8 @@ def append_test_case(suite_id: int,
                      id: int,
                      db: Session = Depends(get_db),
                      user=Depends(current_active_user)):
-    new_one = test_suite_service.append_test_case(id=id,
+    new_one = test_suite_service.append_test_case(user=user,
+                                                  id=id,
                                                   suite_id=suite_id,
                                                   db=db)
     return new_one
@@ -70,7 +80,8 @@ def append_check_list(suite_id: int,
                       id: int,
                       db: Session = Depends(get_db),
                       user=Depends(current_active_user)):
-    new_one = test_suite_service.append_check_list(id=id,
+    new_one = test_suite_service.append_check_list(user=user,
+                                                   id=id,
                                                    suite_id=suite_id,
                                                    db=db)
     return new_one
@@ -81,7 +92,10 @@ def delete_test_case(suite_id: int,
                      id: int,
                      db: Session = Depends(get_db),
                      user=Depends(current_active_user)):
-    test_suite_service.delete_test_case(suite_id=suite_id, id=id, db=db)
+    test_suite_service.delete_test_case(user=user,
+                                        suite_id=suite_id,
+                                        id=id,
+                                        db=db)
 
 
 @test_suite_router.delete("/{suite_id}/check-list/{id}")
@@ -89,4 +103,6 @@ def delete_check_list(suite_id: int,
                       id: int,
                       db: Session = Depends(get_db),
                       user=Depends(current_active_user)):
-    test_suite_service.delete_check_list(suite_id=suite_id, id=id, db=db)
+    test_suite_service.delete_check_list(user=user,
+                                         suite_id=suite_id,
+                                         id=id, db=db)

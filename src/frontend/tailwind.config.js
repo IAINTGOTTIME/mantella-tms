@@ -7,7 +7,7 @@ import { skeleton } from '@skeletonlabs/tw-plugin';
 /** @type {import('tailwindcss').Config} */
 export default {
   // 2. Opt for dark mode to be handled via the class method
-  // darkMode: 'class',
+  darkMode: 'class',
   content: [
     './src/**/*.{html,js,svelte,ts}',
     // 3. Append the path to the Skeleton package

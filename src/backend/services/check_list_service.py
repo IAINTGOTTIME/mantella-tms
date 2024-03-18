@@ -26,14 +26,10 @@ def get_one_check_list(db: Session,
                             status_code=404)
     if not user.is_superuser:
         db_user = db.query(UserOrm).filter(UserOrm.id == user.id).first()
-        for check_list in db_user.check_list:
-            if not check_list:
-                raise HTTPException(detail=f"You don't have check lists",
-                                    status_code=404)
-            if one not in check_list:
-                raise HTTPException(detail=f"You are not the author of a check list with id {id}",
-                                    status_code=404)
-            return one
+        if one not in db_user.check_list:
+            raise HTTPException(detail=f"You are not the author of a test case with id {id}",
+                                status_code=404)
+        return one
     return one
 
 
@@ -68,25 +64,19 @@ def update_check_list(db: Session,
     found.change_from = user.id
     found.author_id = found.author_id
     found.title = new_check_list.title
-
     if len(new_check_list.items) != len(found.items):
         raise HTTPException(detail=f"number of items must be the same",
                             status_code=400)
-
     for i, item in enumerate(found.items):
         item.description = new_check_list.items[i].description
     if not user.is_superuser:
         db_user = db.query(UserOrm).filter(UserOrm.id == user.id).first()
-        for check_list in db_user.check_list:
-            if not check_list:
-                raise HTTPException(detail=f"You don't have checklists",
-                                    status_code=404)
-            if found not in check_list:
-                raise HTTPException(detail=f"You are not the author of a check list with id {id}",
-                                    status_code=404)
-            db.commit()
-            db.refresh(found)
-            return found
+        if found not in db_user.check_list:
+            raise HTTPException(detail=f"You are not the author of a test case with id {id}",
+                                status_code=404)
+        db.commit()
+        db.refresh(found)
+        return found
     db.commit()
     db.refresh(found)
     return found

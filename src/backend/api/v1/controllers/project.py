@@ -65,7 +65,7 @@ def delete_project(id: int,
     project_service.delete_project(id=id, user=user, db=db)
 
 
-@project_router.put("/{project_id}/test-suite/{suite_id}", response_model=Project)
+@project_router.put("/{project_id}/append-test-suite/{suite_id}", response_model=Project)
 def append_test_suite(project_id: int,
                       suite_id: int,
                       db: Session = Depends(get_db),
@@ -82,8 +82,7 @@ def update_test_suite(project_id: int,
                       suite_id: int,
                       new_suite: TestSuiteRequest,
                       db: Session = Depends(get_db),
-                      user=Depends(current_active_user)
-                      ):
+                      user=Depends(current_active_user)):
     new_one = project_service.update_test_suite(suite_id=suite_id,
                                                 project_id=project_id,
                                                 user=user,
@@ -103,7 +102,7 @@ def delete_test_suite(project_id: int,
                                       db=db)
 
 
-@project_router.put("/{project_id}/test-suite/{suite_id}/test-case/{case_id}", response_model=Project)
+@project_router.put("/{project_id}/test-suite/{suite_id}/append-test-case/{case_id}", response_model=Project)
 def append_test_case(project_id: int,
                      case_id: int,
                      suite_id: int,
@@ -123,8 +122,7 @@ def update_test_case(project_id: int,
                      case_id: int,
                      new_case: TestCaseRequest,
                      db: Session = Depends(get_db),
-                     user=Depends(current_active_user)
-                     ):
+                     user=Depends(current_active_user)):
     new_one = project_service.update_test_case(suite_id=suite_id,
                                                case_id=case_id,
                                                project_id=project_id,
@@ -147,7 +145,7 @@ def delete_test_case(project_id: int,
                                      db=db)
 
 
-@project_router.put("/{project_id}/test-suite/{suite_id}/check-list/{list_id}", response_model=Project)
+@project_router.put("/{project_id}/test-suite/{suite_id}/append-check-list/{list_id}", response_model=Project)
 def append_check_list(project_id: int,
                       list_id: int,
                       suite_id: int,
@@ -167,8 +165,7 @@ def update_check_list(project_id: int,
                       list_id: int,
                       new_list: CheckListRequest,
                       db: Session = Depends(get_db),
-                      user=Depends(current_active_user)
-                      ):
+                      user=Depends(current_active_user)):
     new_one = project_service.update_check_list(suite_id=suite_id,
                                                 list_id=list_id,
                                                 project_id=project_id,

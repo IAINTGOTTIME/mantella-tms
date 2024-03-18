@@ -13,7 +13,7 @@ class TestCaseStep(BaseModel):
 class TestCase(BaseModel):
     id: int
     author_id: UUID4
-    change_from: UUID4
+    change_from: UUID4 | None
     title: str
     steps: List[TestCaseStep]
     priority: int

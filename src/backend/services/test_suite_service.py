@@ -28,14 +28,10 @@ def get_one_test_suite(db: Session,
                             status_code=404)
     if not user.is_superuser:
         db_user = db.query(UserOrm).filter(UserOrm.id == user.id).first()
-        for test_suite in db_user.test_suite:
-            if not test_suite:
-                raise HTTPException(detail=f"You don't have test suites",
-                                    status_code=404)
-            if one not in test_suite:
-                raise HTTPException(detail=f"You are not the author of a test suite with id {id}",
-                                    status_code=404)
-            return one
+        if one not in db_user.test_suite:
+            raise HTTPException(detail=f"You are not the author of a test suite with id {id}",
+                                status_code=404)
+        return one
     return one
 
 
@@ -62,17 +58,14 @@ def update_test_suite(db: Session,
                             status_code=404)
     if not user.is_superuser:
         db_user = db.query(UserOrm).filter(UserOrm.id == user.id).first()
-        for test_suite in db_user.test_suite:
-            if not test_suite:
-                raise HTTPException(detail=f"You don't have test suites",
-                                    status_code=404)
-            if found not in test_suite:
-                raise HTTPException(detail=f"You are not the author of a test suite with id {id}",
-                                    status_code=404)
-            found.name = new_suite.name
-            db.commit()
-            db.refresh(found)
-            return found
+        if found not in db_user.test_suite:
+            raise HTTPException(detail=f"You are not the author of a test suite with id {id}",
+                                status_code=404)
+        found.name = new_suite.name
+        found.change_from = user.id
+        db.commit()
+        db.refresh(found)
+        return found
     found.name = new_suite.name
     db.commit()
     db.refresh(found)
@@ -88,15 +81,11 @@ def delete_test_suite(db: Session,
                             status_code=404)
     if not user.is_superuser:
         db_user = db.query(UserOrm).filter(UserOrm.id == user.id).first()
-        for test_suite in db_user.test_suite:
-            if not test_suite:
-                raise HTTPException(detail=f"You don't have test suites",
-                                    status_code=404)
-            if delete_suite not in test_suite:
-                raise HTTPException(detail=f"You are not the author of a test suite with id {id}",
-                                    status_code=404)
-            db.delete(delete_suite)
-            db.commit()
+        if delete_suite not in db_user.test_suite:
+            raise HTTPException(detail=f"You are not the author of a test suite with id {id}",
+                                status_code=404)
+        db.delete(delete_suite)
+        db.commit()
     db.delete(delete_suite)
     db.commit()
 
@@ -110,22 +99,21 @@ def delete_test_case(db: Session,
         raise HTTPException(detail=f"Test suite with id {suite_id} not found",
                             status_code=404)
     test_case = db.query(TestCaseOrm).filter(TestCaseOrm.id == id).first()
-    if not found:
+    if not test_case:
         raise HTTPException(detail=f"Test case with id {id} not found",
+                            status_code=404)
+    if test_case not in found.test_case:
+        raise HTTPException(detail=f"Test case with id {id} not found in test suite with od {suite_id}",
                             status_code=404)
     if not user.is_superuser:
         db_user = db.query(UserOrm).filter(UserOrm.id == user.id).first()
-        for test_suite in db_user.test_suite:
-            if not test_suite:
-                raise HTTPException(detail=f"You don't have test suites",
-                                    status_code=404)
-            if found not in test_suite:
-                raise HTTPException(detail=f"You are not the author of a test suite with id {id}",
-                                    status_code=404)
-            found.test_case.remove(test_case)
-            db.commit()
-            db.refresh(found)
-            return found
+        if found not in db_user.test_suite:
+            raise HTTPException(detail=f"You are not the author of a test suite with id {id}",
+                                status_code=404)
+        found.test_case.remove(test_case)
+        db.commit()
+        db.refresh(found)
+        return found
     found.test_case.remove(test_case)
     db.commit()
     db.refresh(found)
@@ -141,23 +129,22 @@ def delete_check_list(db: Session,
         raise HTTPException(detail=f"Test suite with id {suite_id} not found",
                             status_code=404)
     check_list = db.query(CheckListOrm).filter(CheckListOrm.id == id).first()
-    if not CheckListOrm:
+    if not check_list:
         raise HTTPException(detail=f"Test case with id {id} not found",
+                            status_code=404)
+    if check_list not in found.check_list:
+        raise HTTPException(detail=f"Test case with id {id} not found in test suite with od {suite_id}",
                             status_code=404)
     if not user.is_superuser:
         db_user = db.query(UserOrm).filter(UserOrm.id == user.id).first()
-        for test_suite in db_user.test_suite:
-            if not test_suite:
-                raise HTTPException(detail=f"You don't have test suites",
-                                    status_code=404)
-            if found not in test_suite:
-                raise HTTPException(detail=f"You are not the author of a test suite with id {id}",
-                                    status_code=404)
-            found.check_list.remove(check_list)
-            db.commit()
-            db.refresh(found)
-            return found
-    found.check_list.remove(check_list)
+        if found not in db_user.test_suite:
+            raise HTTPException(detail=f"You are not the author of a test suite with id {id}",
+                                status_code=404)
+        found.check_list.remove(check_list)
+        db.commit()
+        db.refresh(found)
+        return found
+    found.check_list.delete(check_list)
     db.commit()
     db.refresh(found)
     return found
@@ -172,22 +159,21 @@ def append_test_case(db: Session,
         raise HTTPException(detail=f"Test suite with id {suite_id} not found",
                             status_code=404)
     test_case = db.query(TestCaseOrm).filter(TestCaseOrm.id == id).first()
-    if not found:
+    if not test_case:
         raise HTTPException(detail=f"Test case with id {id} not found",
                             status_code=404)
+    if test_case in found.test_case:
+        raise HTTPException(detail=f"Test case with id {id} is already in test suite with id {suite_id}",
+                            status_code=400)
     if not user.is_superuser:
         db_user = db.query(UserOrm).filter(UserOrm.id == user.id).first()
-        for test_suite in db_user.test_suite:
-            if not test_suite:
-                raise HTTPException(detail=f"You don't have test suites",
-                                    status_code=404)
-            if found not in test_suite:
-                raise HTTPException(detail=f"You are not the author of a test suite with id {id}",
-                                    status_code=404)
-            found.test_case.append(test_case)
-            db.commit()
-            db.refresh(found)
-            return found
+        if found not in db_user.test_suite:
+            raise HTTPException(detail=f"You are not the author of a test suite with id {id}",
+                                status_code=404)
+        found.test_case.append(test_case)
+        db.commit()
+        db.refresh(found)
+        return found
     found.test_case.append(test_case)
     db.commit()
     db.refresh(found)
@@ -206,19 +192,18 @@ def append_check_list(db: Session,
     if not CheckListOrm:
         raise HTTPException(detail=f"Test case with id {id} not found",
                             status_code=404)
+    if check_list in found.check_list:
+        raise HTTPException(detail=f"Test case with id {id} is already in test suite with id {suite_id}",
+                            status_code=400)
     if not user.is_superuser:
         db_user = db.query(UserOrm).filter(UserOrm.id == user.id).first()
-        for test_suite in db_user.test_suite:
-            if not test_suite:
-                raise HTTPException(detail=f"You don't have test suites",
-                                    status_code=404)
-            if found not in test_suite:
-                raise HTTPException(detail=f"You are not the author of a test suite with id {id}",
-                                    status_code=404)
-            found.check_list.append(check_list)
-            db.commit()
-            db.refresh(found)
-            return found
+        if found not in db_user.test_suite:
+            raise HTTPException(detail=f"You are not the author of a test suite with id {id}",
+                                status_code=404)
+        found.check_list.append(check_list)
+        db.commit()
+        db.refresh(found)
+        return found
     found.check_list.append(check_list)
     db.commit()
     db.refresh(found)

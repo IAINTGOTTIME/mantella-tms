@@ -31,8 +31,8 @@ def get_test_cases(db: Session,
                    skip: int = 0,
                    limit: int = 50,
                    user=Depends(current_active_user)):
-    if not user.is_superuser():
-        test_cases = db.query(TestCaseOrm).filter(TestCaseOrm.author_id == user).offset(skip).limit(limit).all()
+    if not user.is_superuser:
+        test_cases = db.query(TestCaseOrm).filter(TestCaseOrm.author_id == user.id).offset(skip).limit(limit).all()
         return test_cases
     test_cases = db.query(TestCaseOrm).offset(skip).limit(limit).all()
     return test_cases
@@ -47,14 +47,10 @@ def get_one_test_case(db: Session,
                             status_code=404)
     if not user.is_superuser:
         db_user = db.query(UserOrm).filter(UserOrm.id == user.id).first()
-        for test_case in db_user.test_case:
-            if not test_case:
-                raise HTTPException(detail=f"You don't have test case",
-                                    status_code=404)
-            if one not in test_case:
-                raise HTTPException(detail=f"You are not the author of a test case with id {id}",
-                                    status_code=404)
-            return one
+        if one not in db_user.test_case:
+            raise HTTPException(detail=f"You are not the author of a test case with id {id}",
+                                status_code=404)
+        return one
     return one
 
 
@@ -64,10 +60,10 @@ def create_test_case(db: Session,
     validate_test_case_steps(new_case.steps)
     validate_test_case_priority(new_case.priority)
     new_one = TestCaseOrm(
-        author_id=user.id,
         title=new_case.title,
         priority=new_case.priority
     )
+    new_one.author_id = user.id
     db.add(new_one)
     db.flush()
     for step in new_case.steps:
@@ -104,16 +100,12 @@ def update_test_case(db: Session,
         step.order = new_item.steps[i].order
     if not user.is_superuser:
         db_user = db.query(UserOrm).filter(UserOrm.id == user.id).first()
-        for test_case in db_user.test_case:
-            if not test_case:
-                raise HTTPException(detail=f"You don't have test case",
-                                    status_code=404)
-            if found not in test_case:
-                raise HTTPException(detail=f"You are not the author of a test case with id {id}",
-                                    status_code=404)
-            db.commit()
-            db.refresh(found)
-            return found
+        if found not in db_user.test_case:
+            raise HTTPException(detail=f"You are not the author of a test case with id {id}",
+                                status_code=404)
+        db.commit()
+        db.refresh(found)
+        return found
     db.commit()
     db.refresh(found)
     return found
@@ -128,14 +120,10 @@ def delete_test_case(db: Session,
                             status_code=404)
     if not user.is_superuser:
         db_user = db.query(UserOrm).filter(UserOrm.id == user.id).first()
-        for test_case in db_user.test_case:
-            if not test_case:
-                raise HTTPException(detail=f"You don't have test case",
-                                    status_code=404)
-            if found not in test_case:
-                raise HTTPException(detail=f"You are not the author of a test case with id {id}",
-                                    status_code=404)
-            db.delete(found)
-            db.commit()
+        if found not in db_user.test_case:
+            raise HTTPException(detail=f"You are not the author of a test case with id {id}",
+                                status_code=404)
+        db.delete(found)
+        db.commit()
     db.delete(found)
     db.commit()

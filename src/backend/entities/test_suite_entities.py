@@ -7,7 +7,7 @@ from entities.test_case_entities import TestCase
 class TestSuite(BaseModel):
     id: int
     author_id: UUID4
-    change_from: UUID4
+    change_from: UUID4 | None
     name: str
     test_case: List['TestCase'] | None
     check_list: List['CheckList'] | None

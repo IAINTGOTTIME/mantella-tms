@@ -47,7 +47,7 @@ def get_one_test_case(db: Session,
                             status_code=404)
     if not user.is_superuser:
         db_user = db.query(UserOrm).filter(UserOrm.id == user.id).first()
-        if one not in db_user.test_case:
+        if db_user not in found.author:
             raise HTTPException(detail=f"You are not the author of a test case with id {id}",
                                 status_code=404)
         return one
@@ -100,7 +100,7 @@ def update_test_case(db: Session,
         step.order = new_item.steps[i].order
     if not user.is_superuser:
         db_user = db.query(UserOrm).filter(UserOrm.id == user.id).first()
-        if found not in db_user.test_case:
+        if db_user not in found.author:
             raise HTTPException(detail=f"You are not the author of a test case with id {id}",
                                 status_code=404)
         db.commit()
@@ -120,7 +120,7 @@ def delete_test_case(db: Session,
                             status_code=404)
     if not user.is_superuser:
         db_user = db.query(UserOrm).filter(UserOrm.id == user.id).first()
-        if found not in db_user.test_case:
+        if db_user not in found.author:
             raise HTTPException(detail=f"You are not the author of a test case with id {id}",
                                 status_code=404)
         db.delete(found)

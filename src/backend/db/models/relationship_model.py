@@ -28,10 +28,3 @@ relationship_project_viewer = Table(
     Column("user_id", UUID, ForeignKey("user.id"), primary_key=True, nullable=False),
     Column("project_id", Integer, ForeignKey("project.id"), primary_key=True, nullable=False)
 )
-
-relationship_project_test_suite = Table(
-    "project_test_suite_relationship",
-    Base.metadata,
-    Column("project_id", Integer, ForeignKey("project.id"), primary_key=True, nullable=False),
-    Column("test_suite_id", Integer, ForeignKey("test_suite.id"), primary_key=True, nullable=False)
-)

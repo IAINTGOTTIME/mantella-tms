@@ -60,7 +60,7 @@ def update_test_suite(suite_id: int,
                                                 user=user)
 
 
-@test_suite_router.delete("/{suite_id}", response_model=TestSuite)
+@test_suite_router.delete("/{suite_id}")
 def delete_test_suite(suite_id: int,
                       db: Session = Depends(get_db),
                       user=Depends(current_active_user)):
@@ -113,59 +113,3 @@ def delete_check_list(suite_id: int,
                                          suite_id=suite_id,
                                          list_id=list_id,
                                          db=db)
-
-
-@test_suite_router.get("/project/{project_id}/editor/{user_id}/test-case", response_model=List[TestCase])
-def get_user_test_case(project_id: int,
-                       user_id: UUID,
-                       db: Session = Depends(get_db),
-                       skip: int = 0,
-                       limit: int = 10,
-                       user=Depends(current_active_user)):
-    return test_suite_service.get_user_test_case(project_id=project_id,
-                                                 user_id=user_id,
-                                                 db=db,
-                                                 skip=skip,
-                                                 limit=limit,
-                                                 user=user)
-
-
-@test_suite_router.get("/project/{project_id}/editor/{user_id}/check-list", response_model=List[CheckList])
-def get_user_check_list(project_id: int,
-                        user_id: UUID,
-                        db: Session = Depends(get_db),
-                        skip: int = 0,
-                        limit: int = 10,
-                        user=Depends(current_active_user)):
-    return test_suite_service.get_user_check_list(project_id=project_id,
-                                                  user_id=user_id,
-                                                  db=db,
-                                                  skip=skip,
-                                                  limit=limit,
-                                                  user=user)
-
-
-@test_suite_router.put("/project/{project_id}/test-case/{case_id}", response_model=TestCase)
-def update_user_test_case(project_id: int,
-                          case_id: int,
-                          new_case: TestCaseRequest,
-                          db: Session = Depends(get_db),
-                          user=Depends(current_active_user)):
-    return test_suite_service.update_user_test_case(project_id=project_id,
-                                                    case_id=case_id,
-                                                    new_case=new_case,
-                                                    db=db,
-                                                    user=user)
-
-
-@test_suite_router.put("/project/{project_id}/check-list/{list_id}", response_model=CheckList)
-def update_user_check_list(project_id: int,
-                           list_id: int,
-                           new_list: CheckListRequest,
-                           db: Session = Depends(get_db),
-                           user=Depends(current_active_user)):
-    return test_suite_service.update_user_check_list(project_id=project_id,
-                                                     list_id=list_id,
-                                                     new_list=new_list,
-                                                     db=db,
-                                                     user=user)

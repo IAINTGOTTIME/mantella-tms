@@ -17,6 +17,7 @@ class CheckList(BaseModel):
     change_from: UUID | None
     title: str
     items: List[CheckListItem]
+    project_id: int
 
 
 class CheckListItemRequest(BaseModel):

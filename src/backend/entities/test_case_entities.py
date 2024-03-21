@@ -17,6 +17,7 @@ class TestCase(BaseModel):
     title: str
     steps: List[TestCaseStep]
     priority: int
+    project_id: int
 
 
 class TestCaseStepRequest(BaseModel):

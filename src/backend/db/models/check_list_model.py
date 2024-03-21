@@ -21,6 +21,10 @@ class CheckListOrm(Base):
                                                  index=True)
     author: Mapped['UserOrm'] = relationship(back_populates="check_list")
     change_from: Mapped[uuid.UUID] = mapped_column(nullable=True)
+    project_id: Mapped[int] = mapped_column(ForeignKey("project.id"),
+                                            nullable=False,
+                                            index=True)
+    project: Mapped['ProjectOrm'] = relationship(back_populates="check_list")
 
 
 class CheckListItemOrm(Base):

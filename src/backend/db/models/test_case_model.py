@@ -25,6 +25,8 @@ class TestCaseOrm(Base):
                                             nullable=False,
                                             index=True)
     project: Mapped['ProjectOrm'] = relationship(back_populates="test_case")
+    execution: Mapped[List['TestExecutionOrm'] | None] = relationship(back_populates="test_case")
+    bug: Mapped[List['BugOrm'] | None] = relationship(back_populates="test_case")
 
 
 class TestCaseStepOrm(Base):

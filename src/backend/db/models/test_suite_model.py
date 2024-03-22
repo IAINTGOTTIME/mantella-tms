@@ -4,7 +4,8 @@ from db.models.base_model import Base
 import uuid
 from typing import List
 from db.models.relationship_model import (relationship_check_list_table,
-                                          relationship_test_case_table)
+                                          relationship_test_case_table,
+                                          relationship_test_run)
 
 
 class TestSuiteOrm(Base):
@@ -20,6 +21,8 @@ class TestSuiteOrm(Base):
                                             nullable=False,
                                             index=True)
     project: Mapped['ProjectOrm'] = relationship(back_populates="test_suite")
+    test_run: Mapped[List['TestRunOrm'] | None] = relationship(back_populates="test_suite",
+                                                               secondary=relationship_test_run)
     test_case: Mapped[List['TestCaseOrm'] | None] = relationship(back_populates="test_suite",
                                                                  secondary=relationship_test_case_table)
     check_list: Mapped[List['CheckListOrm'] | None] = relationship(back_populates="test_suite",

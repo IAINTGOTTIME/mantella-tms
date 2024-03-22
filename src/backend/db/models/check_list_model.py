@@ -25,6 +25,8 @@ class CheckListOrm(Base):
                                             nullable=False,
                                             index=True)
     project: Mapped['ProjectOrm'] = relationship(back_populates="check_list")
+    execution: Mapped[List['ListExecutionOrm'] | None] = relationship(back_populates="check_list")
+    bug: Mapped[List['BugOrm'] | None] = relationship(back_populates="check_list")
 
 
 class CheckListItemOrm(Base):

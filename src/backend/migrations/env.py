@@ -10,6 +10,9 @@ from db.models.project_model import Base
 from db.models.relationship_model import Base
 from db.models.test_case_model import Base
 from db.models.test_suite_model import Base
+from db.models.test_run_model import Base
+from db.models.execution_model import Base
+from db.models.base_model import Base
 from db.models.check_list_model import Base
 
 # this is the Alembic Config object, which provides

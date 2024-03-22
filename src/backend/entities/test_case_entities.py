@@ -30,7 +30,3 @@ class TestCaseRequest(BaseModel):
     title: str
     steps: List[TestCaseStepRequest]
     priority: int
-
-
-class TestCaseUser(BaseModel):
-    id: int

@@ -20,3 +20,8 @@ class ProjectOrm(Base):
                                                                  cascade='save-update, merge, delete')
     check_list: Mapped[List['CheckListOrm'] | None] = relationship(back_populates="project",
                                                                    cascade='save-update, merge, delete')
+    test_run: Mapped[List['TestRunOrm'] | None] = relationship(back_populates="project",
+                                                               cascade='save-update, merge, delete')
+    bug: Mapped[List['BugOrm'] | None] = relationship(back_populates="project",
+                                                      cascade='save-update, merge, delete')
+

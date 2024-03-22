@@ -22,4 +22,5 @@ class UserOrm(Base):
     test_case: Mapped[List['TestCaseOrm'] | None] = relationship(back_populates="author")
     check_list: Mapped[List['CheckListOrm'] | None] = relationship(back_populates="author")
     test_suite: Mapped[List['TestSuiteOrm'] | None] = relationship(back_populates="author")
-
+    test_run_author: Mapped[List['TestRunOrm'] | None] = relationship(back_populates="author")
+    test_run_performer: Mapped[List['TestRunOrm'] | None] = relationship(back_populates="performer")

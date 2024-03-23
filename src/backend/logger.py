@@ -1,13 +1,22 @@
 import logging
+import os
 import time
 from datetime import datetime
 from fastapi import Request
 from settings import LEVEL
 
+LOG_FILE_NAME = 'logfile/{:%Y-%m-%d}.log'.format(datetime.utcnow())
+
+os.makedirs(os.path.dirname(LOG_FILE_NAME), exist_ok=True)
+
 logger = logging.getLogger()
 logger.setLevel(level=LEVEL)
-formatter = logging.Formatter(fmt="'%(asctime)s | %(levelname)-8s | %(message)s'")
-file_handler = logging.FileHandler('logfile/{:%Y-%m-%d}.log'.format(datetime.utcnow()))
+formatter = logging.Formatter(
+    fmt="'%(asctime)s | %(levelname)-8s | %(message)s'")
+file_handler = logging.FileHandler(
+    filename=LOG_FILE_NAME,
+    mode='a'
+)
 file_handler.setFormatter(formatter)
 logger.addHandler(file_handler)
 

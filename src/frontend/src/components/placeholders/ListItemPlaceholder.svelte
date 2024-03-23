@@ -1,1 +1,1 @@
-<li class="placeholder animate-pulse"></li>
+<li class="placeholder animate-pulse m-1"></li>

@@ -2,14 +2,15 @@ version: '3'
 services:
   web-frontend:
     container_name: web-frontend
-    build: 
+    build:
       context: ./src/frontend
       dockerfile: Dockerfile
   api:
+    restart: on-failure
     depends_on:
       - db
     container_name: api
-    build: 
+    build:
       context: ./src/backend
       dockerfile: Dockerfile
   proxy:
@@ -20,7 +21,7 @@ services:
     ports:
       - 8080:80
       - 8443:443
-    build: 
+    build:
       context: ./proxy
       dockerfile: Dockerfile
   db:
@@ -32,5 +33,3 @@ services:
       - POSTGRES_PASSWORD=mantella123321
     ports:
       - 5432:5432
-
-

@@ -1,7 +1,6 @@
 import uuid
-
 from fastapi_users import schemas, models
-from pydantic import EmailStr
+from pydantic import EmailStr, BaseModel, UUID4
 
 
 class UserRead(schemas.BaseUser[uuid.UUID]):
@@ -29,3 +28,7 @@ class UserUpdate(schemas.BaseUserUpdate):
     is_active: bool | None = True
     is_superuser: bool | None = False
     is_verified: bool | None = False
+
+
+class User(BaseModel):
+    id: UUID4

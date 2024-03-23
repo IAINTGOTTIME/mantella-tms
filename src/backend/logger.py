@@ -7,7 +7,7 @@ from settings import LEVEL
 logger = logging.getLogger()
 logger.setLevel(level=LEVEL)
 formatter = logging.Formatter(fmt="'%(asctime)s | %(levelname)-8s | %(message)s'")
-file_handler = logging.FileHandler('{:%Y-%m-%d}.log'.format(datetime.utcnow()))
+file_handler = logging.FileHandler('logfile/{:%Y-%m-%d}.log'.format(datetime.utcnow()))
 file_handler.setFormatter(formatter)
 logger.addHandler(file_handler)
 

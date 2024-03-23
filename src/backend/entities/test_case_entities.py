@@ -1,5 +1,5 @@
 from typing import List
-from pydantic import BaseModel
+from pydantic import BaseModel, UUID4
 
 
 class TestCaseStep(BaseModel):
@@ -12,9 +12,12 @@ class TestCaseStep(BaseModel):
 
 class TestCase(BaseModel):
     id: int
+    author_id: UUID4
+    change_from: UUID4 | None
     title: str
     steps: List[TestCaseStep]
     priority: int
+    project_id: int
 
 
 class TestCaseStepRequest(BaseModel):

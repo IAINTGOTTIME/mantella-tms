@@ -1,6 +1,13 @@
-import datetime
+from datetime import datetime
+from enum import Enum
 from typing import List
 from pydantic import BaseModel, UUID4
+
+
+class StatusEnum(str, Enum):
+    started = "started"
+    not_started = "not started"
+    finished = "finished"
 
 
 class TestRun(BaseModel):
@@ -8,14 +15,16 @@ class TestRun(BaseModel):
     title: str
     description: str
     author_id: UUID4
-    performer_id: UUID4
-    test_suite: List['TestSuite']
+    performer_id: UUID4 | None
+    test_suites: List['TestSuite']
     project_id: int
-    created_at: datetime.datetime
-    ended_at: datetime.datetime | None
+    status: StatusEnum = StatusEnum.not_started
+    start_date: datetime | None
+    ended_at: datetime | None
 
 
 class TestRunRequest(BaseModel):
     title: str
     description: str
-    test_suite: List['TestSuite']
+    start_date: datetime | None
+    ended_at: datetime | None

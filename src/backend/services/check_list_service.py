@@ -1,3 +1,4 @@
+from uuid import UUID
 from fastapi import HTTPException, Depends
 from sqlalchemy.orm import Session
 from auth.user_manager import current_active_user
@@ -7,23 +8,57 @@ from entities.check_lists_entities import CheckListRequest
 
 
 def get_check_lists(db: Session,
-                    project_id: int,
+                    project_id: int | None,
+                    user_id: UUID | None,
                     skip: int = 0,
                     limit: int = 50,
                     user=Depends(current_active_user)):
-    if not user.is_superuser:
-        db_user = db.query(UserOrm).filter(UserOrm.id == user.id).first()
-        check_list = db.query(CheckListOrm).filter(CheckListOrm.project_id == project_id).offset(skip).limit(
+    db_user = db.query(UserOrm).filter(UserOrm.id == user.id).first()
+
+    if project_id and user_id:
+        user_check_lists = db.query(CheckListOrm).filter(CheckListOrm.project_id == project_id,
+                                                         CheckListOrm.author_id == user_id).offset(skip).limit(
             limit).all()
-        if not check_list:
+        if not user_check_lists:
+            raise HTTPException(detail=f"User with id {user_id} has no check list in project with id {project_id}",
+                                status_code=404)
+        if not user.is_superuser:
+            if db_user not in user_check_lists[0].project.editors or user_check_lists[0].project.viewers:
+                raise HTTPException(detail=f"You are not the editor or viewer of a project with id {project_id}",
+                                    status_code=404)
+        return user_check_lists
+
+    if not project_id and user_id:
+        check_lists = db.query(CheckListOrm).filter(CheckListOrm.author_id == user.id).offset(skip).limit(
+            limit).all()
+        if not check_lists:
+            raise HTTPException(detail=f"You are not the author of any check list",
+                                status_code=404)
+        return check_lists
+
+    if project_id:
+        check_lists = db.query(CheckListOrm).filter(CheckListOrm.project_id == project_id).offset(skip).limit(
+            limit).all()
+        if not check_lists:
             raise HTTPException(detail=f"Project with id {project_id} has no check list",
                                 status_code=404)
-        if db_user not in check_list[0].project.editor or check_list[0].project.viewer:
-            raise HTTPException(detail=f"You are not the editor or viewer of a project with id {project_id}",
+        if not user.is_superuser:
+            if db_user not in check_lists[0].project.editors or check_lists[0].project.viewers:
+                raise HTTPException(detail=f"You are not the editor or viewer of a project with id {project_id}",
+                                    status_code=404)
+        return check_lists
+
+    if user_id:
+        if not user.is_superuser:
+            raise HTTPException(detail=f"only superuser can view all check lists of another user "
+                                       f"(pass the id of the joint project to view the check lists of the user).",
+                                status_code=400)
+        check_lists = db.query(CheckListOrm).filter(CheckListOrm.author_id == user_id).offset(skip).limit(
+            limit).all()
+        if not check_lists:
+            raise HTTPException(detail=f"User with id {user_id} has no check list",
                                 status_code=404)
-        return check_list
-    check_list = db.query(CheckListOrm).filter(CheckListOrm.project_id == project_id).offset(skip).limit(limit).all()
-    return check_list
+        return check_lists
 
 
 def get_one_check_list(db: Session,
@@ -35,10 +70,9 @@ def get_one_check_list(db: Session,
                             status_code=404)
     if not user.is_superuser:
         db_user = db.query(UserOrm).filter(UserOrm.id == user.id).first()
-        if db_user not in one.project.editor or one.project.viewer:
+        if db_user not in one.project.editors or one.project.viewers:
             raise HTTPException(detail=f"You are not the editor or viewer of a project with id {one.project.id}",
                                 status_code=404)
-        return one
     return one
 
 
@@ -61,12 +95,9 @@ def create_check_list(db: Session,
         db.flush()
     if not user.is_superuser:
         db_user = db.query(UserOrm).filter(UserOrm.id == user.id).first()
-        if db_user not in new_one.project.editor:
+        if db_user not in new_one.project.editors:
             raise HTTPException(detail=f"You are not the editor of a project with id {project_id}",
                                 status_code=404)
-        db.commit()
-        db.refresh(new_one)
-        return new_one
     db.commit()
     db.refresh(new_one)
     return new_one
@@ -90,12 +121,9 @@ def update_check_list(db: Session,
         item.description = new_check_list.items[i].description
     if not user.is_superuser:
         db_user = db.query(UserOrm).filter(UserOrm.id == user.id).first()
-        if db_user not in found.project.editor or found.project.viewer:
+        if db_user not in found.project.editors or found.project.viewers:
             raise HTTPException(detail=f"You are not the editor or viewer of a project with id {found.project.id}",
                                 status_code=404)
-        db.commit()
-        db.refresh(found)
-        return found
     db.commit()
     db.refresh(found)
     return found
@@ -110,12 +138,9 @@ def delete_check_list(db: Session,
                             status_code=404)
     if not user.is_superuser:
         db_user = db.query(UserOrm).filter(UserOrm.id == user.id).first()
-        if db_user not in delete.project.editor or delete.project.viewer:
+        if db_user not in delete.project.editors or delete.project.viewers:
             raise HTTPException(detail=f"You are not the editor or viewer of a project with id {delete.project.id}",
                                 status_code=404)
-        db.delete(delete)
-        db.commit()
-        return
     db.delete(delete)
     db.commit()
     return

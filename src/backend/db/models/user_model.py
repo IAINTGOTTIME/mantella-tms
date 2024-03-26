@@ -15,12 +15,7 @@ class UserOrm(Base):
     is_active: Mapped[bool] = mapped_column(default=True, nullable=False)
     is_superuser: Mapped[bool] = mapped_column(default=False, nullable=False)
     is_verified: Mapped[bool] = mapped_column(default=False, nullable=False)
-    project_editor: Mapped[List['ProjectOrm'] | None] = relationship(back_populates="editor",
+    project_editor: Mapped[List['ProjectOrm'] | None] = relationship(back_populates="editors",
                                                                      secondary=relationship_project_editor)
-    project_viewer: Mapped[List['ProjectOrm'] | None] = relationship(back_populates="viewer",
+    project_viewer: Mapped[List['ProjectOrm'] | None] = relationship(back_populates="viewers",
                                                                      secondary=relationship_project_viewer)
-    test_case: Mapped[List['TestCaseOrm'] | None] = relationship(back_populates="author")
-    check_list: Mapped[List['CheckListOrm'] | None] = relationship(back_populates="author")
-    test_suite: Mapped[List['TestSuiteOrm'] | None] = relationship(back_populates="author")
-    test_run_author: Mapped[List['TestRunOrm'] | None] = relationship(back_populates="author")
-    test_run_performer: Mapped[List['TestRunOrm'] | None] = relationship(back_populates="performer")

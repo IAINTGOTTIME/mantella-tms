@@ -10,8 +10,8 @@ class TestSuite(BaseModel):
     project_id: int
     change_from: UUID4 | None
     name: str
-    test_case: List['TestCase'] | None
-    check_list: List['CheckList'] | None
+    test_cases: List['TestCase'] | None
+    check_lists: List['CheckList'] | None
 
 
 class TestSuiteRequest(BaseModel):

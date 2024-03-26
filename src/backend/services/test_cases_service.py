@@ -1,4 +1,6 @@
 from typing import List
+from uuid import UUID
+
 from fastapi import HTTPException, Depends
 from sqlalchemy.orm import Session
 from auth.user_manager import current_active_user
@@ -28,22 +30,56 @@ def validate_test_case_priority(priority: int):
 
 
 def get_test_cases(db: Session,
-                   project_id: int,
+                   project_id: int | None,
+                   user_id: UUID | None,
                    skip: int = 0,
                    limit: int = 50,
                    user=Depends(current_active_user)):
-    if not user.is_superuser:
-        db_user = db.query(UserOrm).filter(UserOrm.id == user.id).first()
-        test_cases = db.query(TestCaseOrm).filter(TestCaseOrm.project_id == project_id).offset(skip).limit(limit).all()
+    db_user = db.query(UserOrm).filter(UserOrm.id == user.id).first()
+
+    if project_id and user_id:
+        user_test_case = db.query(TestCaseOrm).filter(TestCaseOrm.project_id == project_id,
+                                                      TestCaseOrm.author_id == user_id).offset(skip).limit(
+            limit).all()
+        if not user_test_case:
+            raise HTTPException(detail=f"User with id {user_id} has no test case in project with id {project_id}",
+                                status_code=404)
+        if not user.is_superuser:
+            if db_user not in user_test_case[0].project.editors or user_test_case[0].project.viewers:
+                raise HTTPException(detail=f"You are not the editor or viewer of a project with id {project_id}",
+                                    status_code=404)
+        return user_test_case
+
+    if not project_id and user_id:
+        test_cases = db.query(TestCaseOrm).filter(TestCaseOrm.author_id == user.id).offset(skip).limit(
+            limit).all()
+        if not test_cases:
+            raise HTTPException(detail=f"You are not the author of any test case",
+                                status_code=404)
+        return test_cases
+
+    if project_id:
+        test_cases = db.query(TestCaseOrm).filter(TestCaseOrm.project_id == project_id).offset(skip).limit(
+            limit).all()
         if not test_cases:
             raise HTTPException(detail=f"Project with id {project_id} has no test case",
                                 status_code=404)
-        if db_user not in test_cases[0].project.editor or test_cases[0].project.viewer:
-            raise HTTPException(detail=f"You are not the editor or viewer of a project with id {project_id}",
-                                status_code=404)
+        if not user.is_superuser:
+            if db_user not in test_cases[0].project.editors or test_cases[0].project.viewers:
+                raise HTTPException(detail=f"You are not the editor or viewer of a project with id {project_id}",
+                                    status_code=404)
         return test_cases
-    check_list = db.query(TestCaseOrm).filter(TestCaseOrm.project_id == project_id).offset(skip).limit(limit).all()
-    return check_list
+
+    if user_id:
+        if not user.is_superuser:
+            raise HTTPException(detail=f"only superuser can view all test cases of another user "
+                                       f"(pass the id of the joint project to view the test cases of the user).",
+                                status_code=400)
+        test_cases = db.query(TestCaseOrm).filter(TestCaseOrm.author_id == user_id).offset(skip).limit(
+            limit).all()
+        if not test_cases:
+            raise HTTPException(detail=f"User with id {user_id} has no test case",
+                                status_code=404)
 
 
 def get_one_test_case(db: Session,
@@ -55,10 +91,9 @@ def get_one_test_case(db: Session,
                             status_code=404)
     if not user.is_superuser:
         db_user = db.query(UserOrm).filter(UserOrm.id == user.id).first()
-        if db_user not in one.project.editor or one.project.viewer:
+        if db_user not in one.project.editors or one.project.viewers:
             raise HTTPException(detail=f"You are not the editor or viewer of a project with id {one.project.id}",
                                 status_code=404)
-        return one
     return one
 
 
@@ -85,12 +120,9 @@ def create_test_case(db: Session,
         db.flush()
     if not user.is_superuser:
         db_user = db.query(UserOrm).filter(UserOrm.id == user.id).first()
-        if db_user not in new_one.project.editor:
+        if db_user not in new_one.project.editors:
             raise HTTPException(detail=f"You are not the editor of a project with id {project_id}",
                                 status_code=404)
-        db.commit()
-        db.refresh(new_one)
-        return new_one
     db.commit()
     db.refresh(new_one)
     return new_one
@@ -118,7 +150,7 @@ def update_test_case(db: Session,
         step.order = new_item.steps[i].order
     if not user.is_superuser:
         db_user = db.query(UserOrm).filter(UserOrm.id == user.id).first()
-        if db_user not in found.project.editor:
+        if db_user not in found.project.editors:
             raise HTTPException(detail=f"You are not the editor of a project with id {found.project.id}",
                                 status_code=404)
         db.commit()
@@ -138,7 +170,7 @@ def delete_test_case(db: Session,
                             status_code=404)
     if not user.is_superuser:
         db_user = db.query(UserOrm).filter(UserOrm.id == user.id).first()
-        if db_user not in found.project.editor:
+        if db_user not in found.project.editors:
             raise HTTPException(detail=f"You are not the editor of a project with id {found.project.id}",
                                 status_code=404)
         db.delete(found)

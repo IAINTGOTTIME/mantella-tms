@@ -1,4 +1,5 @@
 from typing import List
+from uuid import UUID
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 import services
@@ -13,20 +14,22 @@ test_cases_router = APIRouter(
 )
 
 
-@test_cases_router.get("/project/{project_id}", response_model=List[TestCase])
-def get_test_cases(project_id: int,
+@test_cases_router.get("/", response_model=List[TestCase])
+def get_test_cases(project_id: int | None,
+                   user_id: UUID | None,
                    skip: int = 0,
                    limit: int = 50,
                    db: Session = Depends(get_db),
                    user=Depends(current_active_user)):
     return services.test_cases_service.get_test_cases(project_id=project_id,
+                                                      user_id = user_id,
                                                       user=user,
                                                       skip=skip,
                                                       limit=limit,
                                                       db=db)
 
 
-@test_cases_router.get("/{case_id}", response_model=TestCase)
+@test_cases_router.get("/{case_id}/", response_model=TestCase)
 def get_one_test_case(case_id: int,
                       db: Session = Depends(get_db),
                       user=Depends(current_active_user)):
@@ -35,7 +38,7 @@ def get_one_test_case(case_id: int,
                                                          db=db)
 
 
-@test_cases_router.post("/project/{project_id}", response_model=TestCase)
+@test_cases_router.post("/", response_model=TestCase)
 def create_test_case(project_id: int,
                      new_case: TestCaseRequest,
                      db: Session = Depends(get_db),
@@ -46,7 +49,7 @@ def create_test_case(project_id: int,
                                                         db=db)
 
 
-@test_cases_router.put("/{case_id}", response_model=TestCase)
+@test_cases_router.put("/{case_id}/", response_model=TestCase)
 def update_test_case(case_id: int,
                      new_item: TestCaseRequest,
                      db: Session = Depends(get_db),
@@ -57,7 +60,7 @@ def update_test_case(case_id: int,
                                                         db=db)
 
 
-@test_cases_router.delete("/{case_id}")
+@test_cases_router.delete("/{case_id}/")
 def delete_test_case(case_id: int,
                      db: Session = Depends(get_db),
                      user=Depends(current_active_user)):

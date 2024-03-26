@@ -15,15 +15,15 @@ class TestSuiteOrm(Base):
     author_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("user.id"),
                                                  nullable=False,
                                                  index=True)
-    author: Mapped['UserOrm'] = relationship(back_populates="test_suite")
+    author: Mapped['UserOrm'] = relationship()
     change_from: Mapped[uuid.UUID] = mapped_column(nullable=True)
     project_id: Mapped[int] = mapped_column(ForeignKey("project.id"),
                                             nullable=False,
                                             index=True)
     project: Mapped['ProjectOrm'] = relationship(back_populates="test_suite")
-    test_run: Mapped[List['TestRunOrm'] | None] = relationship(back_populates="test_suite",
-                                                               secondary=relationship_test_run)
-    test_case: Mapped[List['TestCaseOrm'] | None] = relationship(back_populates="test_suite",
-                                                                 secondary=relationship_test_case_table)
-    check_list: Mapped[List['CheckListOrm'] | None] = relationship(back_populates="test_suite",
-                                                                   secondary=relationship_check_list_table)
+    test_runs: Mapped[List['TestRunOrm'] | None] = relationship(back_populates="test_suite",
+                                                                secondary=relationship_test_run)
+    test_cases: Mapped[List['TestCaseOrm'] | None] = relationship(back_populates="test_suite",
+                                                                  secondary=relationship_test_case_table)
+    check_lists: Mapped[List['CheckListOrm'] | None] = relationship(back_populates="test_suite",
+                                                                    secondary=relationship_check_list_table)

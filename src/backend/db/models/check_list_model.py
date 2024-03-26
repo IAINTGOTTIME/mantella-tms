@@ -14,19 +14,17 @@ class CheckListOrm(Base):
     items: Mapped[List['CheckListItemOrm']] = relationship(
         back_populates='check_list',
         cascade='save-update, merge, delete')
-    test_suite: Mapped[List['TestSuiteOrm'] | None] = relationship(back_populates="check_list",
-                                                                   secondary=relationship_check_list_table)
+    test_suites: Mapped[List['TestSuiteOrm'] | None] = relationship(back_populates="check_lists",
+                                                                    secondary=relationship_check_list_table)
     author_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("user.id"),
                                                  nullable=False,
                                                  index=True)
-    author: Mapped['UserOrm'] = relationship(back_populates="check_list")
+    author: Mapped['UserOrm'] = relationship()
     change_from: Mapped[uuid.UUID] = mapped_column(nullable=True)
     project_id: Mapped[int] = mapped_column(ForeignKey("project.id"),
                                             nullable=False,
                                             index=True)
-    project: Mapped['ProjectOrm'] = relationship(back_populates="check_list")
-    execution: Mapped[List['ListExecutionOrm'] | None] = relationship(back_populates="check_list")
-    bug: Mapped[List['BugOrm'] | None] = relationship(back_populates="check_list")
+    project: Mapped['ProjectOrm'] = relationship(back_populates="check_lists")
 
 
 class CheckListItemOrm(Base):

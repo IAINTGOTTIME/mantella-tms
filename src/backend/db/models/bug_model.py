@@ -10,19 +10,21 @@ class BugOrm(Base):
     title: Mapped[str] = mapped_column(nullable=False)
     description: Mapped[str] = mapped_column(nullable=False)
     importance: Mapped[str] = mapped_column(nullable=False)
-    found_id: Mapped[UUID] = mapped_column(ForeignKey("user.id"),
-                                           nullable=False,
-                                           index=True)
-    found: Mapped['UserOrm'] = relationship(back_populates="found_bug")
+    finder_id: Mapped[UUID] = mapped_column(ForeignKey("user.id"),
+                                            nullable=False,
+                                            index=True)
+    finder: Mapped['UserOrm'] = relationship()
     test_case_id: Mapped[int] | None = mapped_column(ForeignKey("test_case.id"),
-                                                     nullable=False,
                                                      index=True)
-    test_case: Mapped['TestCaseOrm'] | None = relationship(back_populates="bug")
+    test_case: Mapped['TestCaseOrm'] | None = relationship()
     check_list_id: Mapped[int] | None = mapped_column(ForeignKey("check_list.id"),
-                                                      nullable=False,
                                                       index=True)
-    check_list: Mapped['TestCaseOrm'] | None = relationship(back_populates="bug")
+    check_list: Mapped['TestCaseOrm'] | None = relationship()
+    test_run_id: Mapped[int] = mapped_column(ForeignKey("test_run.id"),
+                                             nullable=False,
+                                             index=True)
+    test_run: Mapped['TestRunOrm'] = relationship(back_populates="bugs")
     project_id: Mapped[int] = mapped_column(ForeignKey("project.id"),
                                             nullable=False,
                                             index=True)
-    test_run: Mapped['ProjectOrm'] = relationship(back_populates="bug")
+    project: Mapped['ProjectOrm'] = relationship(back_populates="bugs")

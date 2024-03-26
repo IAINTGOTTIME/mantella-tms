@@ -14,19 +14,17 @@ class TestCaseOrm(Base):
     steps: Mapped[List['TestCaseStepOrm']] = relationship(
         back_populates="test_case",
         cascade='save-update, merge, delete')
-    test_suite: Mapped[List['TestSuiteOrm'] | None] = relationship(secondary=relationship_test_case_table,
-                                                                   back_populates="test_case")
+    test_suites: Mapped[List['TestSuiteOrm'] | None] = relationship(secondary=relationship_test_case_table,
+                                                                    back_populates="test_cases")
     author_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("user.id"),
                                                  nullable=False,
                                                  index=True)
-    author: Mapped['UserOrm'] = relationship(back_populates="test_case")
+    author: Mapped['UserOrm'] = relationship()
     change_from: Mapped[uuid.UUID] = mapped_column(nullable=True)
     project_id: Mapped[int] = mapped_column(ForeignKey("project.id"),
                                             nullable=False,
                                             index=True)
-    project: Mapped['ProjectOrm'] = relationship(back_populates="test_case")
-    execution: Mapped[List['TestExecutionOrm'] | None] = relationship(back_populates="test_case")
-    bug: Mapped[List['BugOrm'] | None] = relationship(back_populates="test_case")
+    project: Mapped['ProjectOrm'] = relationship(back_populates="test_cases")
 
 
 class TestCaseStepOrm(Base):

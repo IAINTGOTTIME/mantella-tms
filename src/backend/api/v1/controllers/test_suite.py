@@ -10,25 +10,27 @@ from entities.test_suite_entities import TestSuite, TestSuiteRequest
 from services import test_suite_service
 
 test_suite_router = APIRouter(
-    tags=["test_suite"],
-    prefix="/test_suite"
+    tags=["test-suites"],
+    prefix="/test-suites"
 )
 
 
-@test_suite_router.get("/project/{project_id}", response_model=List[TestSuite])
-def get_test_suite(project_id: int,
+@test_suite_router.get("/", response_model=List[TestSuite])
+def get_test_suite(project_id: int | None,
+                   user_id: UUID | None,
                    skip: int = 0,
                    limit: int = 10,
                    db: Session = Depends(get_db),
                    user=Depends(current_active_user)):
     return test_suite_service.get_test_suite(project_id=project_id,
+                                             user_id=user_id,
                                              user=user,
                                              db=db,
                                              skip=skip,
                                              limit=limit)
 
 
-@test_suite_router.get("/{suite_id}", response_model=TestSuite)
+@test_suite_router.get("/{suite_id}/", response_model=TestSuite)
 def get_one_test_suite(suite_id: int,
                        db: Session = Depends(get_db),
                        user=Depends(current_active_user)):
@@ -38,7 +40,7 @@ def get_one_test_suite(suite_id: int,
     return one
 
 
-@test_suite_router.post("/project/{project_id}", response_model=TestSuite)
+@test_suite_router.post("/", response_model=TestSuite)
 def create_test_suite(project_id: int,
                       new_suite: TestSuiteRequest,
                       db: Session = Depends(get_db),
@@ -49,67 +51,30 @@ def create_test_suite(project_id: int,
                                                 user=user)
 
 
-@test_suite_router.put("/{suite_id}", response_model=TestSuite)
+@test_suite_router.put("/{suite_id}/", response_model=TestSuite)
 def update_test_suite(suite_id: int,
-                      new_suite: TestSuiteRequest,
+                      case_id: List[int] | None,
+                      list_id: List[int] | None,
+                      new_suite: TestSuiteRequest | None,
                       db: Session = Depends(get_db),
                       user=Depends(current_active_user)):
     return test_suite_service.update_test_suite(db=db,
                                                 suite_id=suite_id,
+                                                case_id=case_id,
+                                                list_id=list_id,
                                                 new_suite=new_suite,
                                                 user=user)
 
 
-@test_suite_router.delete("/{suite_id}")
+@test_suite_router.delete("/{suite_id}/")
 def delete_test_suite(suite_id: int,
+                      case_id: List[int] | None,
+                      list_id: List[int] | None,
                       db: Session = Depends(get_db),
                       user=Depends(current_active_user)):
     return test_suite_service.delete_test_suite(db=db,
+                                                case_id=case_id,
+                                                list_id=list_id,
                                                 suite_id=suite_id,
                                                 user=user)
 
-
-@test_suite_router.put("/{suite_id}/test-cases/{case_id}", response_model=TestSuite)
-def append_test_case(suite_id: int,
-                     case_id: int,
-                     db: Session = Depends(get_db),
-                     user=Depends(current_active_user)):
-    new_one = test_suite_service.append_test_case(user=user,
-                                                  case_id=case_id,
-                                                  suite_id=suite_id,
-                                                  db=db)
-    return new_one
-
-
-@test_suite_router.put("/{suite_id}/check-list/{list_id}", response_model=TestSuite)
-def append_check_list(suite_id: int,
-                      list_id: int,
-                      db: Session = Depends(get_db),
-                      user=Depends(current_active_user)):
-    new_one = test_suite_service.append_check_list(user=user,
-                                                   list_id=list_id,
-                                                   suite_id=suite_id,
-                                                   db=db)
-    return new_one
-
-
-@test_suite_router.delete("/{suite_id}/test-cases/{case_id}")
-def delete_test_case(suite_id: int,
-                     case_id: int,
-                     db: Session = Depends(get_db),
-                     user=Depends(current_active_user)):
-    test_suite_service.delete_test_case(user=user,
-                                        suite_id=suite_id,
-                                        case_id=case_id,
-                                        db=db)
-
-
-@test_suite_router.delete("/{suite_id}/check-list/{list_id}")
-def delete_check_list(suite_id: int,
-                      list_id: int,
-                      db: Session = Depends(get_db),
-                      user=Depends(current_active_user)):
-    test_suite_service.delete_check_list(user=user,
-                                         suite_id=suite_id,
-                                         list_id=list_id,
-                                         db=db)

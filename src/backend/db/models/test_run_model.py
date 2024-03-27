@@ -15,11 +15,13 @@ class TestRunOrm(Base):
                                             nullable=False,
                                             index=True)
     author: Mapped['UserOrm'] = relationship()
-    performer_id:  Mapped[uuid.UUID] = mapped_column(nullable=True)
-    test_suites: Mapped[List['TestSuiteOrm']] = relationship(back_populates="test_runs",
-                                                             secondary=relationship_test_run)
-    test_executions: Mapped[List['TestExecutionOrm'] | None] = relationship(cascade='save-update, merge, delete')
-    list_executions: Mapped[List['ListExecutionOrm'] | None] = relationship(cascade='save-update, merge, delete')
+    performer_id: Mapped[uuid.UUID] = mapped_column(nullable=True)
+    test_suite: Mapped['TestSuiteOrm'] = relationship(back_populates="test_runs",
+                                                      secondary=relationship_test_run)
+    test_case_executions: Mapped[List['TestExecutionOrm'] | None] = relationship(back_populates="test_run",
+                                                                                 cascade='save-update, merge, delete')
+    check_list_executions: Mapped[List['ListExecutionOrm'] | None] = relationship(back_populates="test_run",
+                                                                                  cascade='save-update, merge, delete')
     bugs: Mapped[List['BugOrm'] | None] = relationship(back_populates="test_run",
                                                        cascade='save-update, merge, delete')
     project_id: Mapped[int] = mapped_column(ForeignKey("project.id"),

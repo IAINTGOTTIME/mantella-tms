@@ -4,7 +4,7 @@ from db.models.base_model import Base
 
 
 class TestExecutionOrm(Base):
-    __tablename__ = "test_execution"
+    __tablename__ = "test_case_execution"
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     test_case_id: Mapped[int] = mapped_column(ForeignKey("test_case.id"),
                                               nullable=False,
@@ -14,7 +14,7 @@ class TestExecutionOrm(Base):
     test_run_id: Mapped[int] = mapped_column(ForeignKey("test_run.id"),
                                              nullable=False,
                                              index=True)
-    test_run: Mapped['TestRunOrm'] = relationship()
+    test_run: Mapped['TestRunOrm'] = relationship(back_populates="test_case_execution")
 
 
 class ListExecutionOrm(Base):
@@ -28,4 +28,4 @@ class ListExecutionOrm(Base):
     test_run_id: Mapped[int] = mapped_column(ForeignKey("test_run.id"),
                                              nullable=False,
                                              index=True)
-    test_run: Mapped['TestRunOrm'] = relationship()
+    test_run: Mapped['TestRunOrm'] = relationship(back_populates="check_list_execution")

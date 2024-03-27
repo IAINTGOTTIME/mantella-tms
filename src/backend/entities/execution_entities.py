@@ -4,10 +4,10 @@ from pydantic import BaseModel
 
 
 class ResultEnum(str, Enum):
-    passed = "passed"
-    failed = "failed"
-    skipped = "skipped"
-    not_started = "not started"
+    passed = "PASSED"
+    failed = "FAILED"
+    skipped = "SKIPPED"
+    not_started = "NOT STARTED"
 
 
 class TestExecution(BaseModel):

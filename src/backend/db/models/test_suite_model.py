@@ -20,7 +20,7 @@ class TestSuiteOrm(Base):
     project_id: Mapped[int] = mapped_column(ForeignKey("project.id"),
                                             nullable=False,
                                             index=True)
-    project: Mapped['ProjectOrm'] = relationship(back_populates="test_suite")
+    project: Mapped['ProjectOrm'] = relationship(back_populates="test_suites")
     test_runs: Mapped[List['TestRunOrm'] | None] = relationship(back_populates="test_suite",
                                                                 secondary=relationship_test_run)
     test_cases: Mapped[List['TestCaseOrm'] | None] = relationship(back_populates="test_suite",

@@ -16,15 +16,16 @@ class TestRun(BaseModel):
     description: str
     author_id: UUID4
     performer_id: UUID4 | None
-    test_suites: List['TestSuite']
+    test_suite: 'TestSuite'
+    test_case_executions: List['TestExecution']
+    check_list_executions: List['ListExecution']
     project_id: int
     status: StatusEnum = StatusEnum.not_started
     start_date: datetime | None
-    ended_at: datetime | None
+    end_date: datetime | None
 
 
 class TestRunRequest(BaseModel):
     title: str
     description: str
-    start_date: datetime | None
-    ended_at: datetime | None
+

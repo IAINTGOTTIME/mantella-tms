@@ -39,12 +39,18 @@ def get_one_bug(bug_id: int,
 
 
 @bug_router.post("/", response_model=Bug)
-def create_bug(test_run_id: int,
+def create_bug(project_id: int,
+               test_run_id: int,
                new_bug: BugRequest,
                importance: ImportanceEnum,
                db: Session = Depends(get_db),
+               test_case_id: int | None = None,
+               check_list_id: int | None = None,
                user=Depends(current_active_user)):
     new_one = bug_service.create_bug(test_run_id=test_run_id,
+                                     project_id=project_id,
+                                     test_case_id=test_case_id,
+                                     check_list_id=check_list_id,
                                      importance=importance,
                                      user=user,
                                      new_bug=new_bug,

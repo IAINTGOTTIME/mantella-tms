@@ -21,6 +21,8 @@ class TestCaseOrm(Base):
                                                  index=True)
     author: Mapped['UserOrm'] = relationship()
     change_from: Mapped[uuid.UUID] = mapped_column(nullable=True)
+    test_case_executions: Mapped[List['TestExecutionOrm'] | None] = relationship(back_populates="test_case",
+                                                                                 cascade='save-update, merge, delete')
     project_id: Mapped[int] = mapped_column(ForeignKey("project.id"),
                                             nullable=False,
                                             index=True)

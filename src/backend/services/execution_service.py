@@ -46,7 +46,7 @@ def get_test_case_execution(db: Session,
                      offset(skip).limit(limit).all())
         if not execution:
             raise HTTPException(detail=f"Test run with id {test_run_id} has no test case execution with parameters"
-                                       f"(test case id {test_case_id}",
+                                       f"(test case id {test_case_id})",
                                 status_code=404)
         if not user.is_superuser:
             if db_user not in execution[0].test_run.project.editors or execution[0].test_run.project.viewers:
@@ -142,7 +142,7 @@ def get_check_list_execution(db: Session,
                      offset(skip).limit(limit).all())
         if not execution:
             raise HTTPException(detail=f"Test run with id {test_run_id} has no check list execution with parameters"
-                                       f"(check list id {check_list_id}", status_code=404)
+                                       f"(check list id {check_list_id})", status_code=404)
         if not user.is_superuser:
             if db_user not in execution[0].test_run.project.editors or execution[0].test_run.project.viewers:
                 raise HTTPException(detail=f"You are not the editor or viewer of a project with id with parameters"

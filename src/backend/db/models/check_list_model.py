@@ -21,6 +21,8 @@ class CheckListOrm(Base):
                                                  index=True)
     author: Mapped['UserOrm'] = relationship()
     change_from: Mapped[uuid.UUID] = mapped_column(nullable=True)
+    check_list_executions: Mapped[List['ListExecutionOrm'] | None] = relationship(back_populates="check_list",
+                                                                                  cascade='save-update, merge, delete')
     project_id: Mapped[int] = mapped_column(ForeignKey("project.id"),
                                             nullable=False,
                                             index=True)

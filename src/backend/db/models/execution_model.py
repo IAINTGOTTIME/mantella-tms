@@ -9,7 +9,7 @@ class TestExecutionOrm(Base):
     test_case_id: Mapped[int] = mapped_column(ForeignKey("test_case.id"),
                                               nullable=False,
                                               index=True)
-    test_case: Mapped['TestCaseOrm'] = relationship()
+    test_case: Mapped['TestCaseOrm'] = relationship(back_populates="test_case_executions")
     result: Mapped[str] = mapped_column(nullable=False)
     test_run_id: Mapped[int] = mapped_column(ForeignKey("test_run.id"),
                                              nullable=False,
@@ -23,7 +23,7 @@ class ListExecutionOrm(Base):
     check_list_id: Mapped[int] = mapped_column(ForeignKey("check_list.id"),
                                                nullable=False,
                                                index=True)
-    check_list: Mapped['CheckListOrm'] = relationship()
+    check_list: Mapped['CheckListOrm'] = relationship(back_populates="check_list_executions")
     result: Mapped[str] = mapped_column(nullable=False)
     test_run_id: Mapped[int] = mapped_column(ForeignKey("test_run.id"),
                                              nullable=False,

@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 from db.engine import get_db
 from entities.bug_entities import BugRequest, Bug, ImportanceEnum
 from auth.user_manager import current_active_user
+from services import bug_service
 
 bug_router = APIRouter(
     tags=["bugs"],
@@ -13,17 +14,13 @@ bug_router = APIRouter(
 
 
 @bug_router.get("/", response_model=List[Bug])
-def get_bug(project_id: int | None,
-            test_case_id: int | None,
-            check_list_id: int | None,
-            user_id: UUID | None,
+def get_bug(project_id: int | None = None,
+            user_id: UUID | None = None,
             skip: int = 0,
             limit: int = 50,
             db: Session = Depends(get_db),
             user=Depends(current_active_user)):
     return bug_service.get_bug(project_id=project_id,
-                               test_case_id=test_case_id,
-                               check_list_id=check_list_id,
                                user_id=user_id,
                                user=user,
                                db=db,
@@ -57,8 +54,8 @@ def create_bug(test_run_id: int,
 
 @bug_router.put("/{bug_id}/", response_model=Bug)
 def update_bug(bug_id: int,
-               new_bug: BugRequest | None,
-               importance: ImportanceEnum | None,
+               new_bug: BugRequest | None = None,
+               importance: ImportanceEnum | None = None,
                db: Session = Depends(get_db),
                user=Depends(current_active_user)):
     new_one = bug_service.update_bug(user=user,

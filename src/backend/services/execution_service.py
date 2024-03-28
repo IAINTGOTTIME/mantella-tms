@@ -8,8 +8,8 @@ from entities.execution_entities import ResultEnum
 
 def get_test_case_execution(db: Session,
                             test_run_id: int,
-                            test_case_id: int | None,
-                            result: ResultEnum | None,
+                            test_case_id: int | None = None,
+                            result: ResultEnum | None = None,
                             skip: int = 0,
                             limit: int = 50,
                             user=Depends(current_active_user)):
@@ -28,7 +28,7 @@ def get_test_case_execution(db: Session,
                                            f"{execution[0].test_run.project.id}", status_code=404)
         return execution
 
-    if not test_case_id and result:
+    if not test_case_id and not result:
         execution = db.query(TestExecutionOrm).filter(TestExecutionOrm.test_run_id == test_run_id).offset(skip).limit(
             limit).all()
         if not execution:
@@ -103,9 +103,9 @@ def update_test_case_execution(execution_id: int,
 
 
 def get_check_list_execution(db: Session,
-                             test_run_id: int | None,
-                             check_list_id: int | None,
-                             result: ResultEnum | None,
+                             test_run_id: int | None = None,
+                             check_list_id: int | None = None,
+                             result: ResultEnum | None = None,
                              skip: int = 0,
                              limit: int = 50,
                              user=Depends(current_active_user)):
@@ -124,7 +124,7 @@ def get_check_list_execution(db: Session,
                                            f"{execution[0].test_run.project.id}", status_code=404)
         return execution
 
-    if not check_list_id and result:
+    if not check_list_id and not result:
         execution = db.query(ListExecutionOrm).filter(ListExecutionOrm.test_run_id == test_run_id).offset(skip).limit(
             limit).all()
         if not execution:

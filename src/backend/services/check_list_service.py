@@ -8,8 +8,8 @@ from entities.check_lists_entities import CheckListRequest
 
 
 def get_check_lists(db: Session,
-                    project_id: int | None,
-                    user_id: UUID | None,
+                    project_id: int | None = None,
+                    user_id: UUID | None = None,
                     skip: int = 0,
                     limit: int = 50,
                     user=Depends(current_active_user)):
@@ -28,7 +28,7 @@ def get_check_lists(db: Session,
                                     status_code=404)
         return user_check_lists
 
-    if not project_id and user_id:
+    if not project_id and not user_id:
         check_lists = db.query(CheckListOrm).filter(CheckListOrm.author_id == user.id).offset(skip).limit(
             limit).all()
         if not check_lists:
@@ -113,6 +113,7 @@ def update_check_list(db: Session,
                             status_code=404)
     found.change_from = user.id
     found.author_id = found.author_id
+    found.project = found.project
     found.title = new_check_list.title
     if len(new_check_list.items) != len(found.items):
         raise HTTPException(detail=f"Number of items must be the same",

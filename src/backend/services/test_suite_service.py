@@ -11,8 +11,8 @@ from entities.test_suite_entities import TestSuiteRequest
 
 
 def get_test_suite(db: Session,
-                   project_id: int | None,
-                   user_id: UUID | None,
+                   project_id: int | None = None,
+                   user_id: UUID | None = None,
                    skip: int = 0,
                    limit: int = 10,
                    user=Depends(current_active_user)):
@@ -31,7 +31,7 @@ def get_test_suite(db: Session,
                                     status_code=404)
         return user_test_suites
 
-    if not project_id and user_id:
+    if not project_id and not user_id:
         test_suites = db.query(TestSuiteOrm).filter(TestSuiteOrm.author_id == user.id).offset(skip).limit(
             limit).all()
         if not test_suites:
@@ -103,9 +103,9 @@ def create_test_suite(db: Session,
 
 def update_test_suite(db: Session,
                       suite_id: int,
-                      case_id: List[int] | None,
-                      list_id: List[int] | None,
-                      new_suite: TestSuiteRequest | None,
+                      case_id: List[int] | None = None,
+                      list_id: List[int] | None = None,
+                      new_suite: TestSuiteRequest | None = None,
                       user=Depends(current_active_user)):
     found = db.query(TestSuiteOrm).filter(TestSuiteOrm.id == suite_id).first()
     if not found:
@@ -121,19 +121,21 @@ def update_test_suite(db: Session,
         if not test_case:
             raise HTTPException(detail=f"One of the test cases was not found",
                                 status_code=404)
-        if test_case in found.test_cases:
-            raise HTTPException(detail=f"One of the test cases is already in test suite with id {suite_id}",
-                                status_code=400)
-        found.test_cases.append(test_case)
+        for i in test_case:
+            if i in found.test_cases:
+                raise HTTPException(detail=f"One of the test cases is already in test suite with id {suite_id}",
+                                    status_code=400)
+        found.test_cases.extend(test_case)
     if list_id:
         check_list = db.query(CheckListOrm).filter(CheckListOrm.id.in_(list_id)).all()
         if not check_list:
             raise HTTPException(detail=f"One of the check lists was not found",
                                 status_code=404)
-        if check_list in found.check_lists:
-            raise HTTPException(detail=f"One of the check lists is already in test suite with id {suite_id}",
-                                status_code=400)
-        found.check_lists.append(check_list)
+        for i in check_list:
+            if i in found.check_lists:
+                raise HTTPException(detail=f"One of the check lists is already in test suite with id {suite_id}",
+                                    status_code=400)
+        found.check_lists.extend(check_list)
     if new_suite:
         found.name = new_suite.name
     found.name = found.name
@@ -145,8 +147,8 @@ def update_test_suite(db: Session,
 
 def delete_test_suite(db: Session,
                       suite_id: int,
-                      case_id: List[int] | None,
-                      list_id: List[int] | None,
+                      case_id: List[int] | None = None,
+                      list_id: List[int] | None = None,
                       user=Depends(current_active_user)):
     delete_suite = db.query(TestSuiteOrm).filter(TestSuiteOrm.id == suite_id).first()
     if not delete_suite:

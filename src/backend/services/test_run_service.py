@@ -1,7 +1,4 @@
 from datetime import datetime
-from enum import Enum
-from typing import List
-
 from fastapi import HTTPException, Depends
 from sqlalchemy.orm import Session
 from auth.user_manager import current_active_user
@@ -15,8 +12,8 @@ from uuid import UUID
 
 
 def get_test_run(db: Session,
-                 project_id: int | None,
-                 user_id: UUID | None,
+                 project_id: int | None = None,
+                 user_id: UUID | None = None,
                  skip: int = 0,
                  limit: int = 5,
                  user=Depends(current_active_user)):
@@ -34,7 +31,7 @@ def get_test_run(db: Session,
                                     status_code=404)
         return test_run
 
-    if not project_id and user_id:
+    if not project_id and not user_id:
         test_run = db.query(TestRunOrm).filter(TestRunOrm.author_id == user.id).offset(skip).limit(
             limit).all()
         if not test_run:
@@ -85,10 +82,10 @@ def one_test_run(db: Session,
 def create_test_run(db: Session,
                     project_id: int,
                     suite_id: int,
-                    performer_id: UUID | None,
-                    start_date: datetime | None,
-                    end_date: datetime | None,
                     new_run: TestRunRequest,
+                    performer_id: UUID | None = None,
+                    start_date: datetime | None = None,
+                    end_date: datetime | None = None,
                     user=Depends(current_active_user)):
     new_one = TestRunOrm(
         title=new_run.title,
@@ -111,7 +108,7 @@ def create_test_run(db: Session,
     if not test_suite:
         raise HTTPException(detail=f"Project with id {project_id} does not have a test suite with id {suite_id}",
                             status_code=404)
-    new_one.test_suite.append(test_suite)
+    new_one.test_suite = test_suite
     db.add(new_one)
     db.flush()
     if not user.is_superuser:
@@ -144,11 +141,11 @@ def create_test_run(db: Session,
 
 def update_test_run(db: Session,
                     run_id: int,
-                    performer_id: UUID | None,
-                    status: StatusEnum | None,
-                    start_date: datetime | None,
-                    end_date: datetime | None,
-                    new_run: TestRunRequest | None,
+                    performer_id: UUID | None = None,
+                    status: StatusEnum | None = None,
+                    start_date: datetime | None = None,
+                    end_date: datetime | None = None,
+                    new_run: TestRunRequest | None = None,
                     user=Depends(current_active_user)):
     found = db.query(TestRunOrm).filter(TestRunOrm.id == run_id).first()
     if not found:
@@ -160,7 +157,7 @@ def update_test_run(db: Session,
             raise HTTPException(detail=f"You are not editor of a project with id {found.project.id}",
                                 status_code=404)
     if performer_id:
-        found.performer = performer_id
+        found.performer_id = performer_id
     if status:
         found.status = status
     if new_run:
@@ -185,7 +182,6 @@ def update_test_run(db: Session,
     found.start_date = found.start_date
     found.end_date = found.end_date
     found.author = found.author
-    found.performer = found.performer
     db.commit()
     db.refresh(found)
     return found
@@ -206,5 +202,3 @@ def delete_test_run(db: Session,
     db.delete(delete)
     db.commit()
     return
-
-

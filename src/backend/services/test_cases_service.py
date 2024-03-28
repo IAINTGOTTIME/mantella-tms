@@ -30,8 +30,8 @@ def validate_test_case_priority(priority: int):
 
 
 def get_test_cases(db: Session,
-                   project_id: int | None,
-                   user_id: UUID | None,
+                   project_id: int | None = None,
+                   user_id: UUID | None = None,
                    skip: int = 0,
                    limit: int = 50,
                    user=Depends(current_active_user)):
@@ -50,7 +50,7 @@ def get_test_cases(db: Session,
                                     status_code=404)
         return user_test_case
 
-    if not project_id and user_id:
+    if not project_id and not user_id:
         test_cases = db.query(TestCaseOrm).filter(TestCaseOrm.author_id == user.id).offset(skip).limit(
             limit).all()
         if not test_cases:

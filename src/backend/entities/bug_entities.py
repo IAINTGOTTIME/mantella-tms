@@ -13,7 +13,7 @@ class Bug(BaseModel):
     title: str
     description: str
     importance: ImportanceEnum
-    found_id: UUID4
+    finder_id: UUID4
     test_case_id: int | None
     check_list_id: int | None
     test_run_id: int

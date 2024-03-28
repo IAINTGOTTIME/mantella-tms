@@ -1,7 +1,7 @@
 from uuid import UUID
 from fastapi import HTTPException, Depends
 from sqlalchemy.orm import Session
-from api.v1.controllers.project import RoleEnum
+from entities.project_entities import RoleEnum
 from auth.user_manager import current_active_user
 from db.models.project_model import ProjectOrm
 from db.models.user_model import UserOrm
@@ -55,9 +55,9 @@ def create_project(db: Session,
 
 def update_project(db: Session,
                    project_id: int,
-                   user_id: UUID | None,
-                   role: RoleEnum | None,
-                   new_project: ProjectRequest | None,
+                   user_id: UUID | None = None,
+                   role: RoleEnum | None = None,
+                   new_project: ProjectRequest | None = None,
                    user=Depends(current_active_user)):
     found = db.query(ProjectOrm).filter(ProjectOrm.id == project_id).first()
     if not found:
@@ -100,8 +100,8 @@ def update_project(db: Session,
 
 def delete_project(db: Session,
                    project_id: int,
-                   user_id: UUID | None,
-                   role: RoleEnum | None,
+                   user_id: UUID | None = None,
+                   role: RoleEnum | None = None,
                    user=Depends(current_active_user)):
     project = db.query(ProjectOrm).filter(ProjectOrm.id == project_id).first()
     if not project:

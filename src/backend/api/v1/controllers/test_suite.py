@@ -4,8 +4,6 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from auth.user_manager import current_active_user
 from db.engine import get_db
-from entities.check_lists_entities import CheckList, CheckListRequest
-from entities.test_case_entities import TestCase, TestCaseRequest
 from entities.test_suite_entities import TestSuite, TestSuiteRequest
 from services import test_suite_service
 
@@ -16,8 +14,8 @@ test_suite_router = APIRouter(
 
 
 @test_suite_router.get("/", response_model=List[TestSuite])
-def get_test_suite(project_id: int | None,
-                   user_id: UUID | None,
+def get_test_suite(project_id: int | None = None,
+                   user_id: UUID | None = None,
                    skip: int = 0,
                    limit: int = 10,
                    db: Session = Depends(get_db),
@@ -53,9 +51,9 @@ def create_test_suite(project_id: int,
 
 @test_suite_router.put("/{suite_id}/", response_model=TestSuite)
 def update_test_suite(suite_id: int,
-                      case_id: List[int] | None,
-                      list_id: List[int] | None,
-                      new_suite: TestSuiteRequest | None,
+                      case_id: List[int] | None = None,
+                      list_id: List[int] | None = None,
+                      new_suite: TestSuiteRequest | None = None,
                       db: Session = Depends(get_db),
                       user=Depends(current_active_user)):
     return test_suite_service.update_test_suite(db=db,
@@ -68,8 +66,8 @@ def update_test_suite(suite_id: int,
 
 @test_suite_router.delete("/{suite_id}/")
 def delete_test_suite(suite_id: int,
-                      case_id: List[int] | None,
-                      list_id: List[int] | None,
+                      case_id: List[int] | None = None,
+                      list_id: List[int] | None = None,
                       db: Session = Depends(get_db),
                       user=Depends(current_active_user)):
     return test_suite_service.delete_test_suite(db=db,

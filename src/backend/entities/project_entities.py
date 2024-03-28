@@ -1,6 +1,12 @@
+from enum import Enum
 from typing import List
 from pydantic import BaseModel
 from auth.schemas import User
+
+
+class RoleEnum(str, Enum):
+    editor = "editor"
+    viewer = "viewer"
 
 
 class Project(BaseModel):

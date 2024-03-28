@@ -14,8 +14,8 @@ check_lists_router = APIRouter(
 
 
 @check_lists_router.get("/", response_model=List[CheckList])
-def get_check_lists(project_id: int | None,
-                    user_id: UUID | None,
+def get_check_lists(project_id: int | None = None,
+                    user_id: UUID | None = None,
                     skip: int = 0,
                     limit: int = 50,
                     db: Session = Depends(get_db),
@@ -69,4 +69,3 @@ def delete_check_list(list_id: int,
     check_list_service.delete_check_list(user=user,
                                          list_id=list_id,
                                          db=db)
-

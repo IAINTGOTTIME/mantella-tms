@@ -6,6 +6,7 @@ from uuid import UUID
 
 class BugOrm(Base):
     __tablename__ = "bug"
+    __allow_unmapped__ = True
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     title: Mapped[str] = mapped_column(nullable=False)
     description: Mapped[str] = mapped_column(nullable=False)

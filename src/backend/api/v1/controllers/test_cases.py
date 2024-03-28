@@ -15,8 +15,8 @@ test_cases_router = APIRouter(
 
 
 @test_cases_router.get("/", response_model=List[TestCase])
-def get_test_cases(project_id: int | None,
-                   user_id: UUID | None,
+def get_test_cases(project_id: int | None = None,
+                   user_id: UUID | None = None,
                    skip: int = 0,
                    limit: int = 50,
                    db: Session = Depends(get_db),

@@ -16,11 +16,6 @@ asyncpg = "*"
 sqlalchemy_utils = "*"
 bcrypt = "*"
 alembic = "*"
-fastapi-users = {extras = ["sqlalchemy"], version = "*"}
-asyncpg = "*"
-sqlalchemy_utils = "*"
-bcrypt = "*"
-
 
 [dev-packages]
 

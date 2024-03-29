@@ -1,5 +1,6 @@
 from typing import List
-from fastapi import APIRouter, HTTPException, Depends
+from uuid import UUID
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 import services
 from auth.user_manager import current_active_user
@@ -14,42 +15,55 @@ test_cases_router = APIRouter(
 
 
 @test_cases_router.get("/", response_model=List[TestCase])
-def get_test_cases(skip: int = 0, limit: int = 50,
-                   db: Session = Depends(get_db), user=Depends(current_active_user)):
-    test_cases = services.test_cases_service.get_test_cases(skip=skip,
-                                                            limit=limit,
-                                                            db=db)
-    return test_cases
+def get_test_cases(project_id: int | None = None,
+                   user_id: UUID | None = None,
+                   skip: int = 0,
+                   limit: int = 50,
+                   db: Session = Depends(get_db),
+                   user=Depends(current_active_user)):
+    return services.test_cases_service.get_test_cases(project_id=project_id,
+                                                      user_id=user_id,
+                                                      user=user,
+                                                      skip=skip,
+                                                      limit=limit,
+                                                      db=db)
 
 
-@test_cases_router.get("/{id}", response_model=TestCase)
-def get_one_test_case(id: int, db: Session = Depends(get_db), user=Depends(current_active_user)):
-    one = services.test_cases_service.get_one_test_case(id=id, db=db)
-    if not one:
-        raise HTTPException(detail=f"test case with id {id} not found",
-                            status_code=404)
-    return one
+@test_cases_router.get("/{case_id}/", response_model=TestCase)
+def get_one_test_case(case_id: int,
+                      db: Session = Depends(get_db),
+                      user=Depends(current_active_user)):
+    return services.test_cases_service.get_one_test_case(user=user,
+                                                         case_id=case_id,
+                                                         db=db)
 
 
 @test_cases_router.post("/", response_model=TestCase)
-def create_test_case(new_case: TestCaseRequest, db: Session = Depends(get_db), user=Depends(current_active_user)):
-    new_one = services.test_cases_service.create_test_case(new_case=new_case,
-                                                           db=db)
-    return new_one
+def create_test_case(project_id: int,
+                     new_case: TestCaseRequest,
+                     db: Session = Depends(get_db),
+                     user=Depends(current_active_user)):
+    return services.test_cases_service.create_test_case(project_id=project_id,
+                                                        user=user,
+                                                        new_case=new_case,
+                                                        db=db)
 
 
-@test_cases_router.put("/{id}", response_model=TestCase)
-def update_test_case(id: int, new_item: TestCaseRequest,
-                     db: Session = Depends(get_db), user=Depends(current_active_user)):
-    new_one = services.test_cases_service.update_test_case(id=id,
-                                                           new_item=new_item,
-                                                           db=db)
-    if not new_one:
-        raise HTTPException(detail=f"test case with id {id} not found",
-                            status_code=404)
-    return new_one
+@test_cases_router.put("/{case_id}/", response_model=TestCase)
+def update_test_case(case_id: int,
+                     new_item: TestCaseRequest,
+                     db: Session = Depends(get_db),
+                     user=Depends(current_active_user)):
+    return services.test_cases_service.update_test_case(user=user,
+                                                        case_id=case_id,
+                                                        new_item=new_item,
+                                                        db=db)
 
 
-@test_cases_router.delete("/{id}")
-def delete_test_case(id: int, db: Session = Depends(get_db), user=Depends(current_active_user)):
-    services.test_cases_service.delete_test_case(id=id, db=db)
+@test_cases_router.delete("/{case_id}/")
+def delete_test_case(case_id: int,
+                     db: Session = Depends(get_db),
+                     user=Depends(current_active_user)):
+    services.test_cases_service.delete_test_case(user=user,
+                                                 case_id=case_id,
+                                                 db=db)

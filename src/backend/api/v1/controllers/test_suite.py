@@ -1,5 +1,6 @@
 from typing import List
-from fastapi import APIRouter, Depends, HTTPException
+from uuid import UUID
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from auth.user_manager import current_active_user
 from db.engine import get_db
@@ -7,89 +8,70 @@ from entities.test_suite_entities import TestSuite, TestSuiteRequest
 from services import test_suite_service
 
 test_suite_router = APIRouter(
-    tags=["test_suite"],
-    prefix="/test_suite"
+    tags=["test-suites"],
+    prefix="/test-suites"
 )
 
 
 @test_suite_router.get("/", response_model=List[TestSuite])
-def get_test_suite(skip: int = 0,
-                   limit: int = 50,
-                   db=Depends(get_db),
+def get_test_suite(project_id: int | None = None,
+                   user_id: UUID | None = None,
+                   skip: int = 0,
+                   limit: int = 10,
+                   db: Session = Depends(get_db),
                    user=Depends(current_active_user)):
-    return test_suite_service.get_test_suite(db, skip, limit)
+    return test_suite_service.get_test_suite(project_id=project_id,
+                                             user_id=user_id,
+                                             user=user,
+                                             db=db,
+                                             skip=skip,
+                                             limit=limit)
 
 
-@test_suite_router.get("/{id}", response_model=TestSuite)
-def get_one_test_suite(id: int,
-                       db=Depends(get_db),
+@test_suite_router.get("/{suite_id}/", response_model=TestSuite)
+def get_one_test_suite(suite_id: int,
+                       db: Session = Depends(get_db),
                        user=Depends(current_active_user)):
-    one = test_suite_service.get_one_test_suite(id=id, db=db)
-    if not one:
-        raise HTTPException(detail=f"check-list with id {id} not found",
-                            status_code=404)
+    one = test_suite_service.get_one_test_suite(user=user,
+                                                suite_id=suite_id,
+                                                db=db)
     return one
 
 
 @test_suite_router.post("/", response_model=TestSuite)
-def create_test_suite(new_suite: TestSuiteRequest,
+def create_test_suite(project_id: int,
+                      new_suite: TestSuiteRequest,
                       db: Session = Depends(get_db),
                       user=Depends(current_active_user)):
-    new_one = test_suite_service.create_test_suite(new_suite=new_suite,
-                                                   db=db)
-    return new_one
+    return test_suite_service.create_test_suite(db=db,
+                                                project_id=project_id,
+                                                new_suite=new_suite,
+                                                user=user)
 
 
-@test_suite_router.put("/{id}", response_model=TestSuite)
-def update_test_suite(id: int, new_suite: TestSuiteRequest,
+@test_suite_router.put("/{suite_id}/", response_model=TestSuite)
+def update_test_suite(suite_id: int,
+                      case_id_append: List[int] | None = None,
+                      list_id_append: List[int] | None = None,
+                      case_id_delete: List[int] | None = None,
+                      list_id_delete: List[int] | None = None,
+                      new_suite: TestSuiteRequest | None = None,
                       db: Session = Depends(get_db),
                       user=Depends(current_active_user)):
-    new_one = test_suite_service.update_test_suite(id=id,
-                                                   db=db,
-                                                   new_suite=new_suite)
-    return new_one
+    return test_suite_service.update_test_suite(db=db,
+                                                suite_id=suite_id,
+                                                case_id_append=case_id_append,
+                                                list_id_append=list_id_append,
+                                                case_id_delete=case_id_delete,
+                                                list_id_delete=list_id_delete,
+                                                new_suite=new_suite,
+                                                user=user)
 
 
-@test_suite_router.delete("/{id}")
-def delete_test_suite(id: int,
+@test_suite_router.delete("/{suite_id}/")
+def delete_test_suite(suite_id: int,
                       db: Session = Depends(get_db),
                       user=Depends(current_active_user)):
-    test_suite_service.delete_test_suite(id=id, db=db)
-
-
-@test_suite_router.put("/{suite_id}/test-cases/{id}", response_model=TestSuite)
-def append_test_case(suite_id: int,
-                     id: int,
-                     db: Session = Depends(get_db),
-                     user=Depends(current_active_user)):
-    new_one = test_suite_service.append_test_case(id=id,
-                                                  suite_id=suite_id,
-                                                  db=db)
-    return new_one
-
-
-@test_suite_router.put("/{suite_id}/check-list/{id}", response_model=TestSuite)
-def append_check_list(suite_id: int,
-                      id: int,
-                      db: Session = Depends(get_db),
-                      user=Depends(current_active_user)):
-    new_one = test_suite_service.append_check_list(id=id,
-                                                   suite_id=suite_id,
-                                                   db=db)
-    return new_one
-
-
-@test_suite_router.delete("/{suite_id}/test-cases/{id}")
-def delete_test_case(suite_id: int,
-                     id: int,
-                     db: Session = Depends(get_db),
-                     user=Depends(current_active_user)):
-    test_suite_service.delete_test_case(suite_id=suite_id, id=id, db=db)
-
-
-@test_suite_router.delete("/{suite_id}/check-list/{id}")
-def delete_check_list(suite_id: int,
-                      id: int,
-                      db: Session = Depends(get_db),
-                      user=Depends(current_active_user)):
-    test_suite_service.delete_check_list(suite_id=suite_id, id=id, db=db)
+    return test_suite_service.delete_test_suite(db=db,
+                                                suite_id=suite_id,
+                                                user=user)

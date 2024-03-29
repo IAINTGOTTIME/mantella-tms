@@ -9,6 +9,11 @@ class RoleEnum(str, Enum):
     viewer = "viewer"
 
 
+class FunctionEnum(str, Enum):
+    delete = "delete"
+    add = "add"
+
+
 class Project(BaseModel):
     id: int
     name: str

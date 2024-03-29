@@ -1,5 +1,4 @@
 from typing import List
-from uuid import UUID
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from db.engine import get_db
@@ -15,13 +14,13 @@ bug_router = APIRouter(
 
 @bug_router.get("/", response_model=List[Bug])
 def get_bug(project_id: int | None = None,
-            user_id: UUID | None = None,
+            test_run_id: int | None = None,
             skip: int = 0,
             limit: int = 50,
             db: Session = Depends(get_db),
             user=Depends(current_active_user)):
     return bug_service.get_bug(project_id=project_id,
-                               user_id=user_id,
+                               test_run_id=test_run_id,
                                user=user,
                                db=db,
                                skip=skip,
@@ -44,13 +43,13 @@ def create_bug(project_id: int,
                new_bug: BugRequest,
                importance: ImportanceEnum,
                db: Session = Depends(get_db),
-               test_case_id: int | None = None,
-               check_list_id: int | None = None,
+               test_case_execution_id: int | None = None,
+               check_list_execution_id: int | None = None,
                user=Depends(current_active_user)):
     new_one = bug_service.create_bug(test_run_id=test_run_id,
                                      project_id=project_id,
-                                     test_case_id=test_case_id,
-                                     check_list_id=check_list_id,
+                                     test_case_execution_id=test_case_execution_id,
+                                     check_list_execution_id=check_list_execution_id,
                                      importance=importance,
                                      user=user,
                                      new_bug=new_bug,

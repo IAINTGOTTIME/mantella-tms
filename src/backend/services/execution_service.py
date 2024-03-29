@@ -20,51 +20,45 @@ def get_test_case_execution(db: Session,
                                                       TestExecutionOrm.test_case_id == test_case_id,
                                                       TestExecutionOrm.result == result).offset(skip).limit(limit).all()
         if not execution:
-            raise HTTPException(detail=f"Test run with id {test_run_id} has no test case execution with parameters"
-                                       f"(test case id {test_case_id}, result {result})", status_code=404)
+            return []
         if not user.is_superuser:
             if db_user not in execution[0].test_run.project.editors or execution[0].test_run.project.viewers:
                 raise HTTPException(detail=f"You are not the editor or viewer of a project with id "
-                                           f"{execution[0].test_run.project.id}", status_code=404)
+                                           f"{execution[0].test_run.project.id}", status_code=400)
         return execution
 
     if not test_case_id and not result:
         execution = db.query(TestExecutionOrm).filter(TestExecutionOrm.test_run_id == test_run_id).offset(skip).limit(
             limit).all()
         if not execution:
-            raise HTTPException(detail=f"Test run with id {test_run_id} has no test case execution",
-                                status_code=404)
+            return []
         if not user.is_superuser:
             if db_user not in execution[0].test_run.project.editors or execution[0].test_run.project.viewers:
                 raise HTTPException(detail=f"You are not the editor or viewer of a project with id "
-                                           f"{execution[0].test_run.project.id}", status_code=404)
+                                           f"{execution[0].test_run.project.id}", status_code=400)
         return execution
 
     if test_case_id:
         execution = (db.query(TestExecutionOrm).filter(TestExecutionOrm.test_run_id == test_run_id,
-                                                       TestExecutionOrm.test_case_id == test_case_id).
-                     offset(skip).limit(limit).all())
+                                                       TestExecutionOrm.test_case_id == test_case_id).offset(skip).
+                     limit(limit).all())
         if not execution:
-            raise HTTPException(detail=f"Test run with id {test_run_id} has no test case execution with parameters"
-                                       f"(test case id {test_case_id})",
-                                status_code=404)
+            return []
         if not user.is_superuser:
             if db_user not in execution[0].test_run.project.editors or execution[0].test_run.project.viewers:
                 raise HTTPException(detail=f"You are not the editor or viewer of a project with id with parameters"
-                                           f"{execution[0].test_run.project.id}", status_code=404)
+                                           f"{execution[0].test_run.project.id}", status_code=400)
         return execution
 
     if result:
         execution = db.query(TestExecutionOrm).filter(TestExecutionOrm.test_run_id == test_run_id,
                                                       TestExecutionOrm.result == result).offset(skip).limit(limit).all()
         if not execution:
-            raise HTTPException(detail=f"Test run with id {test_run_id} has no test case execution with parameters"
-                                       f"(result {result})",
-                                status_code=404)
+            return []
         if not user.is_superuser:
             if db_user not in execution[0].test_run.project.editors or execution[0].test_run.project.viewers:
                 raise HTTPException(detail=f"You are not the editor or viewer of a project with id "
-                                           f"{execution[0].test_run.project.id}", status_code=404)
+                                           f"{execution[0].test_run.project.id}", status_code=400)
         return execution
 
 
@@ -79,7 +73,7 @@ def get_one_test_case_execution(execution_id: int,
         db_user = db.query(UserOrm).filter(UserOrm.id == user.id).first()
         if db_user not in one.test_run.project.editors or one.test_run.project.viewers:
             raise HTTPException(detail=f"You are not the editor or viewer of a project with id "
-                                       f"{one.test_run.project.id}", status_code=404)
+                                       f"{one.test_run.project.id}", status_code=400)
     return one
 
 
@@ -95,7 +89,7 @@ def update_test_case_execution(execution_id: int,
         db_user = db.query(UserOrm).filter(UserOrm.id == user.id).first()
         if db_user not in one.test_run.project.editors or one.test_run.project.viewers:
             raise HTTPException(detail=f"You are not the editor or viewer of a project with id "
-                                       f"{one.test_run.project.id}", status_code=404)
+                                       f"{one.test_run.project.id}", status_code=400)
     one.result = result
     db.commit()
     db.refresh(one)
@@ -116,24 +110,22 @@ def get_check_list_execution(db: Session,
                                                       ListExecutionOrm.check_list_id == check_list_id,
                                                       ListExecutionOrm.result == result).offset(skip).limit(limit).all()
         if not execution:
-            raise HTTPException(detail=f"Test run with id {test_run_id} has no check list execution with parameters"
-                                       f"(check list id {check_list_id}, result {result})", status_code=404)
+            return []
         if not user.is_superuser:
             if db_user not in execution[0].test_run.project.editors or execution[0].test_run.project.viewers:
                 raise HTTPException(detail=f"You are not the editor or viewer of a project with id "
-                                           f"{execution[0].test_run.project.id}", status_code=404)
+                                           f"{execution[0].test_run.project.id}", status_code=400)
         return execution
 
     if not check_list_id and not result:
         execution = db.query(ListExecutionOrm).filter(ListExecutionOrm.test_run_id == test_run_id).offset(skip).limit(
             limit).all()
         if not execution:
-            raise HTTPException(detail=f"Test run with id {test_run_id} has no check list execution",
-                                status_code=404)
+            return []
         if not user.is_superuser:
             if db_user not in execution[0].test_run.project.editors or execution[0].test_run.project.viewers:
                 raise HTTPException(detail=f"You are not the editor or viewer of a project with id "
-                                           f"{execution[0].test_run.project.id}", status_code=404)
+                                           f"{execution[0].test_run.project.id}", status_code=400)
         return execution
 
     if check_list_id:
@@ -141,24 +133,22 @@ def get_check_list_execution(db: Session,
                                                        ListExecutionOrm.check_list_id == check_list_id).
                      offset(skip).limit(limit).all())
         if not execution:
-            raise HTTPException(detail=f"Test run with id {test_run_id} has no check list execution with parameters"
-                                       f"(check list id {check_list_id})", status_code=404)
+            return []
         if not user.is_superuser:
             if db_user not in execution[0].test_run.project.editors or execution[0].test_run.project.viewers:
                 raise HTTPException(detail=f"You are not the editor or viewer of a project with id with parameters"
-                                           f"{execution[0].test_run.project.id}", status_code=404)
+                                           f"{execution[0].test_run.project.id}", status_code=400)
         return execution
 
     if result:
         execution = db.query(ListExecutionOrm).filter(ListExecutionOrm.test_run_id == test_run_id,
                                                       ListExecutionOrm.result == result).offset(skip).limit(limit).all()
         if not execution:
-            raise HTTPException(detail=f"Test run with id {test_run_id} has no check list execution with parameters"
-                                       f"(result {result})", status_code=404)
+            return []
         if not user.is_superuser:
             if db_user not in execution[0].test_run.project.editors or execution[0].test_run.project.viewers:
                 raise HTTPException(detail=f"You are not the editor or viewer of a project with id "
-                                           f"{execution[0].test_run.project.id}", status_code=404)
+                                           f"{execution[0].test_run.project.id}", status_code=400)
         return execution
 
 
@@ -173,7 +163,7 @@ def get_one_check_list_execution(execution_id: int,
         db_user = db.query(UserOrm).filter(UserOrm.id == user.id).first()
         if db_user not in one.test_run.project.editors or one.test_run.project.viewers:
             raise HTTPException(detail=f"You are not the editor or viewer of a project with id "
-                                       f"{one.test_run.project.id}", status_code=404)
+                                       f"{one.test_run.project.id}", status_code=400)
     return one
 
 
@@ -189,7 +179,7 @@ def update_check_list_execution(execution_id: int,
         db_user = db.query(UserOrm).filter(UserOrm.id == user.id).first()
         if db_user not in one.test_run.project.editors or one.test_run.project.viewers:
             raise HTTPException(detail=f"You are not the editor or viewer of a project with id "
-                                       f"{one.test_run.project.id}", status_code=404)
+                                       f"{one.test_run.project.id}", status_code=400)
     one.result = result
     db.commit()
     db.refresh(one)

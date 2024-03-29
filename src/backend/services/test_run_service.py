@@ -23,32 +23,29 @@ def get_test_run(db: Session,
         test_run = db.query(TestRunOrm).filter(TestRunOrm.project_id == project_id,
                                                TestRunOrm.author_id == user_id).offset(skip).limit(limit).all()
         if not test_run:
-            raise HTTPException(detail=f"User with id {user_id} has no test run in project with id {project_id}",
-                                status_code=404)
+            return []
         if not user.is_superuser:
             if db_user not in test_run[0].project.editors or test_run[0].project.viewers:
                 raise HTTPException(detail=f"You are not the editor or viewer of a project with id {project_id}",
-                                    status_code=404)
+                                    status_code=400)
         return test_run
 
     if not project_id and not user_id:
         test_run = db.query(TestRunOrm).filter(TestRunOrm.author_id == user.id).offset(skip).limit(
             limit).all()
         if not test_run:
-            raise HTTPException(detail=f"You are not the author of any test run",
-                                status_code=404)
+            return []
         return test_run
 
     if project_id:
         test_run = db.query(TestRunOrm).filter(TestRunOrm.project_id == project_id).offset(skip).limit(
             limit).all()
         if not test_run:
-            raise HTTPException(detail=f"Project with id {project_id} has no test run",
-                                status_code=404)
+            return []
         if not user.is_superuser:
             if db_user not in test_run[0].project.editors or test_run[0].project.viewers:
                 raise HTTPException(detail=f"You are not the editor or viewer of a project with id {project_id}",
-                                    status_code=404)
+                                    status_code=400)
         return test_run
 
     if user_id:
@@ -59,8 +56,7 @@ def get_test_run(db: Session,
         test_run = db.query(TestRunOrm).filter(TestRunOrm.author_id == user_id).offset(skip).limit(
             limit).all()
         if not test_run:
-            raise HTTPException(detail=f"User with id {user_id} has no test run",
-                                status_code=404)
+            return []
         return test_run
 
 
@@ -75,7 +71,7 @@ def one_test_run(db: Session,
         db_user = db.query(UserOrm).filter(UserOrm.id == user.id).first()
         if db_user not in one.project.editors or one.project.viewers:
             raise HTTPException(detail=f"You are not editor or viewer of a project with id {one.project.id}",
-                                status_code=404)
+                                status_code=400)
     return one
 
 
@@ -87,6 +83,11 @@ def create_test_run(db: Session,
                     start_date: datetime | None = None,
                     end_date: datetime | None = None,
                     user=Depends(current_active_user)):
+    project = db.query(TestSuiteOrm).filter(TestSuiteOrm.id == suite_id,
+                                            TestSuiteOrm.project_id == project_id).first()
+    if not project:
+        raise HTTPException(detail=f"Check test suite and project id",
+                            status_code=404)
     new_one = TestRunOrm(
         title=new_run.title,
         description=new_run.description
@@ -102,6 +103,10 @@ def create_test_run(db: Session,
                                     status_code=400)
             new_one.end_date = end_date
     if performer_id:
+        performer = db.query(UserOrm).filter(UserOrm.id == performer_id).first()
+        if not performer:
+            raise HTTPException(detail=f"User with id {performer_id} not found",
+                                status_code=404)
         new_one.performer_id = performer_id
     test_suite = db.query(TestSuiteOrm).filter(TestSuiteOrm.project_id == project_id,
                                                TestSuiteOrm.id == suite_id).first()
@@ -115,10 +120,10 @@ def create_test_run(db: Session,
         db_user = db.query(UserOrm).filter(UserOrm.id == user.id).first()
         if db_user not in new_one.project.editors:
             raise HTTPException(detail=f"You are not the editor of a project with id {project_id}",
-                                status_code=404)
+                                status_code=400)
     if not test_suite.test_cases:
         raise HTTPException(detail=f"Test suite with id {suite_id} has no test cases",
-                            status_code=404)
+                            status_code=400)
     for test_case in test_suite.test_cases:
         new_execution = TestExecutionOrm(result=ResultEnum.not_started)
         new_execution.test_run_id = new_one.id
@@ -127,7 +132,7 @@ def create_test_run(db: Session,
         db.flush()
     if not test_suite.check_lists:
         raise HTTPException(detail=f"Test suite with id {suite_id} has no check lists",
-                            status_code=404)
+                            status_code=400)
     for check_list in test_suite.check_lists:
         new_execution = ListExecutionOrm(result=ResultEnum.not_started)
         new_execution.test_run_id = new_one.id
@@ -155,8 +160,12 @@ def update_test_run(db: Session,
         db_user = db.query(UserOrm).filter(UserOrm.id == user.id).first()
         if db_user not in found.project.editors:
             raise HTTPException(detail=f"You are not editor of a project with id {found.project.id}",
-                                status_code=404)
+                                status_code=400)
     if performer_id:
+        performer = db.query(UserOrm).filter(UserOrm.id == performer_id).first()
+        if not performer:
+            raise HTTPException(detail=f"User with id {performer_id} not found",
+                                status_code=404)
         found.performer_id = performer_id
     if status:
         found.status = status
@@ -198,7 +207,7 @@ def delete_test_run(db: Session,
         db_user = db.query(UserOrm).filter(UserOrm.id == user.id).first()
         if db_user not in delete.project.editors:
             raise HTTPException(detail=f"You are not editor of a project with id {delete.project.id}",
-                                status_code=404)
+                                status_code=400)
     db.delete(delete)
     db.commit()
     return

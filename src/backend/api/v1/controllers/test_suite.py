@@ -51,28 +51,27 @@ def create_test_suite(project_id: int,
 
 @test_suite_router.put("/{suite_id}/", response_model=TestSuite)
 def update_test_suite(suite_id: int,
-                      case_id: List[int] | None = None,
-                      list_id: List[int] | None = None,
+                      case_id_append: List[int] | None = None,
+                      list_id_append: List[int] | None = None,
+                      case_id_delete: List[int] | None = None,
+                      list_id_delete: List[int] | None = None,
                       new_suite: TestSuiteRequest | None = None,
                       db: Session = Depends(get_db),
                       user=Depends(current_active_user)):
     return test_suite_service.update_test_suite(db=db,
                                                 suite_id=suite_id,
-                                                case_id=case_id,
-                                                list_id=list_id,
+                                                case_id_append=case_id_append,
+                                                list_id_append=list_id_append,
+                                                case_id_delete=case_id_delete,
+                                                list_id_delete=list_id_delete,
                                                 new_suite=new_suite,
                                                 user=user)
 
 
 @test_suite_router.delete("/{suite_id}/")
 def delete_test_suite(suite_id: int,
-                      case_id: List[int] | None = None,
-                      list_id: List[int] | None = None,
                       db: Session = Depends(get_db),
                       user=Depends(current_active_user)):
     return test_suite_service.delete_test_suite(db=db,
-                                                case_id=case_id,
-                                                list_id=list_id,
                                                 suite_id=suite_id,
                                                 user=user)
-

@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from auth.user_manager import current_active_user
 from db.engine import get_db
-from entities.project_entities import Project, ProjectRequest, RoleEnum
+from entities.project_entities import Project, ProjectRequest, RoleEnum, FunctionEnum
 from services import project_service
 
 project_router = APIRouter(
@@ -46,11 +46,13 @@ def create_project(new_project: ProjectRequest,
 def update_project(project_id: int,
                    user_id: UUID | None = None,
                    role: RoleEnum | None = None,
+                   function: FunctionEnum | None = None,
                    new_project: ProjectRequest | None = None,
                    db: Session = Depends(get_db),
                    user=Depends(current_active_user)):
     new_one = project_service.update_project(project_id=project_id,
                                              user_id=user_id,
+                                             function=function,
                                              role=role,
                                              user=user,
                                              db=db,
@@ -60,12 +62,8 @@ def update_project(project_id: int,
 
 @project_router.delete("/{project_id}/")
 def delete_project(project_id: int,
-                   user_id: UUID | None = None,
-                   role: RoleEnum | None = None,
                    db: Session = Depends(get_db),
                    user=Depends(current_active_user)):
     project_service.delete_project(project_id=project_id,
-                                   user_id=user_id,
-                                   role=role,
                                    user=user,
                                    db=db)

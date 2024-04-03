@@ -1,6 +1,7 @@
 version: '3'
 services:
   api:
+    restart: on-failure
     depends_on:
       - db
     container_name: api

@@ -1,10 +1,5 @@
 version: '3'
 services:
-  web-frontend:
-    container_name: web-frontend
-    build: 
-      context: ./src/frontend
-      dockerfile: Dockerfile
   api:
     depends_on:
       - db
@@ -16,7 +11,6 @@ services:
     container_name: proxy
     depends_on:
       - api
-      - web-frontend
     ports:
       - 8080:80
       - 8443:443
